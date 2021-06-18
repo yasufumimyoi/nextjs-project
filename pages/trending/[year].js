@@ -1,11 +1,18 @@
-import Head from "next/head";
-import InfiniteScroll from "react-infinite-scroll-component";
 import { useState } from "react";
+import { useRouter } from "next/router";
 import { VideoCameraIcon } from "@heroicons/react/outline";
-import Card from "../components/Card";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Card from "../../components/Card";
 
-export default function Home({ results }) {
+const Trending = ({ results }) => {
+  const router = useRouter();
+  const year = router.query.year;
   const [movies, setMovies] = useState(results.data);
+  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
+
+  if (movies[0].id != results.data[0].id) {
+    setMovies(results.data);
+  }
 
   const getMoreMovies = async () => {
     const request = await fetch(ANIME_API);
@@ -19,21 +26,12 @@ export default function Home({ results }) {
     setMovies((movies) => [...movies, ...validTitles]);
   };
 
-  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=2021&filter[status]=current&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
-
   return (
     <div>
-      <Head>
-        <title>Anime Tracker</title>
-        <meta name="description" content="List your favorite anime" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <div className="flex items-center mb-5">
         <VideoCameraIcon className="h-5 text-purple-500 mr-2" />
-        <h2 className="font-bold text-lg ">現在放送中のアニメ</h2>
+        <h2 className="font-bold text-lg">{`${year}年の人気アニメ`}</h2>
       </div>
-
       <InfiniteScroll
         dataLength={movies.length}
         next={getMoreMovies}
@@ -47,18 +45,15 @@ export default function Home({ results }) {
       </InfiniteScroll>
     </div>
   );
-}
+};
 
-export async function getServerSideProps() {
-  const ANIME_API =
-    "https://kitsu.io/api/edge/anime?filter[seasonYear]=2021&filter[status]=current&sort=-averageRating&page[limit]=20&page[offset]=0";
+Trending.getInitialProps = async (ctx) => {
+  const year = ctx.query.year;
+  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=10&page[offset]=0`;
+  const res = await fetch(ANIME_API);
+  const data = await res.json();
 
-  const request = await fetch(ANIME_API);
-  const data = await request.json();
+  return { results: data };
+};
 
-  return {
-    props: {
-      results: data,
-    },
-  };
-}
+export default Trending;
