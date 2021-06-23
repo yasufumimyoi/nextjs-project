@@ -49,7 +49,7 @@ const Trending = ({ results }) => {
 
 Trending.getInitialProps = async (ctx) => {
   const year = ctx.query.year;
-  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=10&page[offset]=0`;
+  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=20&page[offset]=0`;
   const res = await fetch(ANIME_API);
   const data = await res.json();
 

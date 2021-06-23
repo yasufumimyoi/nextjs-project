@@ -7,17 +7,29 @@ import {
   ChatAltIcon,
 } from "@heroicons/react/outline";
 import { BookmarkIcon as BookdedIcon } from "@heroicons/react/solid";
-import { GlobalContext } from "../context/GlobalState";
-import { useContext } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { addList, removeList } from "../redux/movie";
+import { writeFirestore, removeFirestore } from "../firebase/function";
 
 const Detail = ({ result }) => {
-  const { movieList, addList, removeItem } = useContext(GlobalContext);
+  const { movieList } = useSelector((state) => state.movie);
+  const dispatch = useDispatch();
 
   let storeMovie = movieList.find((o) => o.id === result.data[0].id);
   const watchList = storeMovie ? true : false;
   const style = storeMovie
     ? "flex h-5 mr-2 cursor-pointer hover:opacity-50 transition duration-300"
     : "flex h-5 mr-2 cursor-auto　focus:outline-none";
+
+  const writeData = (movie) => {
+    writeFirestore(movie);
+    dispatch(addList(movie));
+  };
+
+  const removeData = (id) => {
+    removeFirestore(id);
+    dispatch(removeList(id));
+  };
 
   return (
     <div>
@@ -77,7 +89,7 @@ const Detail = ({ result }) => {
                 </div>
                 <div>
                   <button
-                    onClick={() => addList(result.data[0])}
+                    onClick={() => writeData(result.data[0])}
                     disabled={watchList}
                     className="focus:outline-none block"
                   >
@@ -100,7 +112,7 @@ const Detail = ({ result }) => {
 
                   <div
                     className={style}
-                    onClick={() => removeItem(result.data[0].id)}
+                    onClick={() => removeData(result.data[0].id)}
                   >
                     <TrashIcon className="h-5 text-purple-500  mr-1" />
                     <p className="text-sm sm:text-base">お気に入りから削除</p>

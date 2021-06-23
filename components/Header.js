@@ -1,20 +1,49 @@
 import {
   UserIcon,
-  LogoutIcon,
+  LoginIcon,
   FilmIcon,
   BookmarkIcon,
+  LogoutIcon,
 } from "@heroicons/react/outline";
 import HeaderItem from "./HeaderItem";
 import Link from "next/link";
 import SearchForm from "./SearchForm";
+import { useSelector, useDispatch } from "react-redux";
+import { removeLogin, logOut, removeProfile } from "../redux/user";
+import { resetList } from "../redux/movie";
+import { useRouter } from "next/router";
+import { firebase } from "../firebase/config";
 
 const Header = () => {
+  const { login } = useSelector((state) => state.user);
+  const router = useRouter();
+  const dispath = useDispatch();
+
+  const handleLogout = () => {
+    try {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          alert("ログアウトしました");
+          router.push("/");
+          dispath(logOut());
+          dispath(removeLogin());
+          dispath(removeProfile());
+          dispath(resetList());
+          sessionStorage.clear();
+        });
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
   return (
     <header className="mb-5 mt-5 flex justify-between items-center">
       <Link href="/">
         <a className="flex items-center">
           <FilmIcon className="h-8 mr-2 text-purple-500 " />
-          <div className="text-2xl font-bold  hover:opacity-50 transition duration-300 cursor-pointer">
+          <div className="text-lg sm:text-2xl font-bold  hover:opacity-50 transition duration-300 cursor-pointer">
             Anime Tracker
           </div>
         </a>
@@ -27,19 +56,25 @@ const Header = () => {
         <ul className="flex">
           <Link href="/list">
             <a className="mr-5">
-              <HeaderItem Icon={BookmarkIcon} />
+              <HeaderItem Icon={BookmarkIcon} title="LIST" />
             </a>
           </Link>
           <Link href="/profile">
             <a className="mr-5">
-              <HeaderItem Icon={UserIcon} />
+              <HeaderItem Icon={UserIcon} title="PROFILE" />
             </a>
           </Link>
-          <Link href="/login">
-            <a>
-              <HeaderItem Icon={LogoutIcon} />
-            </a>
-          </Link>
+          {login ? (
+            <button className="focus:outline-none" onClick={handleLogout}>
+              <HeaderItem Icon={LogoutIcon} title="LOGOUT" />
+            </button>
+          ) : (
+            <Link href="/signin">
+              <a>
+                <HeaderItem Icon={LoginIcon} title="LOGIN" />
+              </a>
+            </Link>
+          )}
         </ul>
       </nav>
     </header>
