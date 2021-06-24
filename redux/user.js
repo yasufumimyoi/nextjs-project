@@ -1,9 +1,31 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { firebase } from "../firebase/config";
+
+export const fetchProfileData = createAsyncThunk(
+  "user/fetchProfileData",
+  async (uid, { dispatch }) => {
+    try {
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(uid)
+        .collection("profile")
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            dispatch(setProfile(doc.data()));
+          });
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
 
 export const userSlice = createSlice({
   name: "user",
   initialState: {
-    users: null,
+    uid: null,
     login: false,
     profile: {
       name: "",
@@ -14,13 +36,13 @@ export const userSlice = createSlice({
     },
   },
   reducers: {
-    signIn: (state, action) => {
-      state.users = action.payload;
+    setUid: (state, action) => {
+      state.uid = action.payload;
     },
-    logOut: (state) => {
-      state.users = null;
+    removeUid: (state) => {
+      state.uid = null;
     },
-    addLogin: (state) => {
+    setLogin: (state) => {
       state.login = true;
     },
     removeLogin: (state) => {
@@ -42,9 +64,9 @@ export const userSlice = createSlice({
 });
 
 export const {
-  signIn,
-  logOut,
-  addLogin,
+  setUid,
+  removeUid,
+  setLogin,
   removeLogin,
   setProfile,
   removeProfile,

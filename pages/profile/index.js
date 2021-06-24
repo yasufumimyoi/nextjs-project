@@ -13,7 +13,7 @@ import {
 } from "@heroicons/react/outline";
 
 const Profile = () => {
-  const { profile, login, users } = useSelector((state) => state.user);
+  const { profile, login } = useSelector((state) => state.user);
   const { movieList } = useSelector((state) => state.movie);
   const dispatch = useDispatch();
   const router = useRouter();

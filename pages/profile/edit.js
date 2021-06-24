@@ -10,7 +10,7 @@ import { firebase } from "../../firebase/config";
 const Edit = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { profile, users } = useSelector((state) => state.user);
+  const { profile, uid } = useSelector((state) => state.user);
   const { register, handleSubmit } = useForm();
 
   const [imageAsFile, setImageAsFile] = useState("");
@@ -32,7 +32,7 @@ const Edit = () => {
     } else {
       data.image = imageAsFile;
     }
-    editFireStore(users, data);
+    editFireStore(uid, data);
     dispatch(setProfile(data));
     setImageName("");
     router.push("/profile");

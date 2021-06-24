@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { schema } from "../validations/schemas";
 import { useDispatch } from "react-redux";
-import { addLogin } from "../redux/user";
+import { setLogin } from "../redux/user";
 import { firebase } from "../firebase/config";
 
 const SignUp = () => {
@@ -27,7 +27,7 @@ const SignUp = () => {
   const createAccountWithEmail = async ({ email, password }) => {
     try {
       await firebase.auth().createUserWithEmailAndPassword(email, password);
-      dispatch(addLogin());
+      dispatch(setLogin());
       router.push("/");
     } catch (error) {
       router.push("/error");
@@ -38,7 +38,7 @@ const SignUp = () => {
   const createAccountWithGoogle = async () => {
     try {
       await firebase.auth().currentUser.linkWithPopup(googleProvider);
-      dispatch(addLogin());
+      dispatch(setLogin());
       router.push("/");
     } catch (error) {
       router.push("/error");
@@ -49,7 +49,7 @@ const SignUp = () => {
   const createAccountWithGithub = async () => {
     try {
       await firebase.auth().currentUser.linkWithPopup(githubProvider);
-      dispatch(addLogin());
+      dispatch(setLogin());
       router.push("/");
     } catch (error) {
       router.push("/error");
@@ -60,7 +60,7 @@ const SignUp = () => {
   const createAccountWithTwitter = async () => {
     try {
       await firebase.auth().currentUser.linkWithPopup(twitterProvider);
-      dispatch(addLogin());
+      dispatch(setLogin());
       router.push("/");
     } catch (error) {
       router.push("/error");

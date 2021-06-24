@@ -11,7 +11,7 @@ const List = () => {
       <div className="sm:grid sm:gap-10 md:grid-cols-2 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
         {movieList.length > 0 ? (
           movieList.map((movie, index) => (
-            <Card movie={movie} key={movie.type + index + movie.id} />
+            <Card movie={movie} key={movie.title + index + movie.id} />
           ))
         ) : (
           <div>

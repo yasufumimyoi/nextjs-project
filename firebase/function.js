@@ -11,16 +11,12 @@ export const writeFirestore = (movie, uid) => {
       .collection("lists")
       .doc(movie.id)
       .set({
-        attributes: {
-          posterImage: {
-            original: movie.attributes.posterImage.original,
-          },
-          titles: {
-            ja_jp: movie.attributes.titles.ja_jp,
-          },
-          averageRating: movie.attributes.averageRating,
-        },
         id: movie.id,
+        title: movie.title,
+        image: movie.image,
+        rating: movie.rating,
+        episode: movie.episode,
+        status: movie.status,
         createdAt,
       });
   } catch (error) {
