@@ -13,29 +13,20 @@ export default function Home({ results }) {
 
     const validTitles = newMovies.data.filter(
       (movie) =>
-        movie.attributes.titles.ja_jp != undefined &&
-        movie.attributes.ratingRank != null
+        movie.attributes.titles.ja_jp !== undefined &&
+        movie.attributes.averageRating !== null
     );
 
-    let selectedData = [];
-
-    for (let i = 0; i < validTitles.length; i++) {
-      let temp = {};
-      let id = validTitles[i].id;
-      let title = validTitles[i].attributes.titles.ja_jp;
-      let image = validTitles[i].attributes.posterImage.original;
-      let rating = validTitles[i].attributes.averageRating;
-      let episode = validTitles[i].attributes.episodeLength;
-      let status = validTitles[i].attributes.status;
-      temp["id"] = id;
-      temp["title"] = title;
-      temp["image"] = image;
-      temp["rating"] = rating;
-      temp["episode"] = episode;
-      temp["status"] = status;
-      selectedData.push(temp);
-    }
-
+    const selectedData = validTitles.map((movie) => {
+      const item = {};
+      item["id"] = movie.id;
+      item["title"] = movie.attributes.titles.ja_jp;
+      item["image"] = movie.attributes.posterImage.original;
+      item["rating"] = movie.attributes.averageRating;
+      item["episode"] = movie.attributes.episodeLength;
+      item["status"] = movie.attributes.status;
+      return item;
+    });
     setMovies((movies) => [...movies, ...selectedData]);
   };
 
@@ -76,24 +67,16 @@ export async function getServerSideProps() {
   const request = await fetch(ANIME_API);
   const data = await request.json();
 
-  let selectedData = [];
-
-  for (let i = 0; i < data.data.length; i++) {
-    let temp = {};
-    let id = data.data[i].id;
-    let title = data.data[i].attributes.titles.ja_jp;
-    let image = data.data[i].attributes.posterImage.original;
-    let rating = data.data[i].attributes.averageRating;
-    let episode = data.data[i].attributes.episodeLength;
-    let status = data.data[i].attributes.status;
-    temp["id"] = id;
-    temp["title"] = title;
-    temp["image"] = image;
-    temp["rating"] = rating;
-    temp["episode"] = episode;
-    temp["status"] = status;
-    selectedData.push(temp);
-  }
+  const selectedData = data.data.map((movie) => {
+    const item = {};
+    item["id"] = movie.id;
+    item["title"] = movie.attributes.titles.ja_jp;
+    item["image"] = movie.attributes.posterImage.original;
+    item["rating"] = movie.attributes.averageRating;
+    item["episode"] = movie.attributes.episodeLength;
+    item["status"] = movie.attributes.status;
+    return item;
+  });
 
   return {
     props: {

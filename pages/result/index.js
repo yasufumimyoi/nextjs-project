@@ -7,12 +7,7 @@ import { useRouter } from "next/router";
 const Details = ({ results }) => {
   const router = useRouter();
   const keyword = router.query.keyword;
-
-  const validTitle = results.filter(
-    (movie) => movie.title && movie.rating !== null
-  );
-
-  const [movies, setMovies] = useState(validTitle);
+  const [movies, setMovies] = useState(results);
 
   if (movies.length === 0) {
     setMovies([{ id: "No Data" }]);
@@ -28,28 +23,22 @@ const Details = ({ results }) => {
     const validTitles = newMovies.data.filter(
       (movie) =>
         movie.attributes.titles.ja_jp !== undefined &&
-        movie.attributes.ratingRank !== null
+        movie.attributes.averageRating !== null
     );
 
     let filteredData = [];
 
-    validTitles.map((movie) => {
+    validTitles.forEach((movie) => {
       let title = movie.attributes.titles.ja_jp;
       if (title.indexOf(keyword) > 0) {
-        let temp = {};
-        let id = movie.id;
-        let title = movie.attributes.titles.ja_jp;
-        let image = movie.attributes.posterImage.original;
-        let rating = movie.attributes.averageRating;
-        let episode = movie.attributes.episodeLength;
-        let status = movie.attributes.status;
-        temp["id"] = id;
-        temp["title"] = title;
-        temp["image"] = image;
-        temp["rating"] = rating;
-        temp["episode"] = episode;
-        temp["status"] = status;
-        filteredData.push(temp);
+        const item = {};
+        item["id"] = movie.id;
+        item["title"] = movie.attributes.titles.ja_jp;
+        item["image"] = movie.attributes.posterImage.original;
+        item["rating"] = movie.attributes.averageRating;
+        item["episode"] = movie.attributes.episodeLength;
+        item["status"] = movie.attributes.status;
+        filteredData.push(item);
       }
     });
 
@@ -91,28 +80,22 @@ Details.getInitialProps = async (ctx) => {
   const validTitle = data.data.filter(
     (movie) =>
       movie.attributes.titles.ja_jp !== undefined &&
-      movie.attributes.ratingRank !== null
+      movie.attributes.averageRating !== null
   );
 
   let selectedData = [];
 
   if (validTitle.length > 0) {
-    for (let i = 0; i < data.data.length; i++) {
-      let temp = {};
-      let id = data.data[i].id;
-      let title = data.data[i].attributes.titles.ja_jp;
-      let image = data.data[i].attributes.posterImage.original;
-      let rating = data.data[i].attributes.averageRating;
-      let episode = data.data[i].attributes.episodeLength;
-      let status = data.data[i].attributes.status;
-      temp["id"] = id;
-      temp["title"] = title;
-      temp["image"] = image;
-      temp["rating"] = rating;
-      temp["episode"] = episode;
-      temp["status"] = status;
-      selectedData.push(temp);
-    }
+    selectedData = data.data.map((movie) => {
+      const item = {};
+      item["id"] = movie.id;
+      item["title"] = movie.attributes.titles.ja_jp;
+      item["image"] = movie.attributes.posterImage.original;
+      item["rating"] = movie.attributes.averageRating;
+      item["episode"] = movie.attributes.episodeLength;
+      item["status"] = movie.attributes.status;
+      return item;
+    });
   }
 
   return { results: selectedData };

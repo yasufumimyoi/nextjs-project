@@ -9,7 +9,7 @@ import HeaderItem from "./HeaderItem";
 import Link from "next/link";
 import SearchForm from "./SearchForm";
 import { useSelector, useDispatch } from "react-redux";
-import { removeLogin, removeUid, removeProfile } from "../redux/user";
+import { isLogout, removeUid, removeProfile } from "../redux/user";
 import { resetList } from "../redux/movie";
 import { useRouter } from "next/router";
 import { firebase } from "../firebase/config";
@@ -28,7 +28,7 @@ const Header = () => {
           alert("ログアウトしました");
           router.push("/");
           dispath(removeUid());
-          dispath(removeLogin());
+          dispath(isLogout());
           dispath(removeProfile());
           dispath(resetList());
           sessionStorage.clear();

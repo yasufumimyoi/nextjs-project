@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
-import { logOut, removeLogin, removeProfile } from "../../redux/user";
+import {
+  isLogout,
+  removeUid,
+  removeLogin,
+  removeProfile,
+} from "../../redux/user";
 import { resetList } from "../../redux/movie";
 import { useRouter } from "next/router";
 import { firebase } from "../../firebase/config";
@@ -19,20 +24,22 @@ const Profile = () => {
   const router = useRouter();
 
   const handelDelete = () => {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      user
-        .delete()
-        .then(() => {
-          router.push("/");
-          dispatch(logOut());
-          dispatch(removeLogin());
-          dispatch(removeProfile());
-          dispatch(resetList());
-        })
-        .catch((eroor) => {
-          console.log(eroor);
-        });
+    if (window.confirm("アカウントを削除しますか？")) {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        user
+          .delete()
+          .then(() => {
+            router.push("/");
+            dispatch(removeUid());
+            dispatch(isLogout());
+            dispatch(removeProfile());
+            dispatch(resetList());
+          })
+          .catch((eroor) => {
+            console.log(eroor);
+          });
+      }
     }
   };
 

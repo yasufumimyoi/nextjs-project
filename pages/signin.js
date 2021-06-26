@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { schema } from "../validations/schemas";
 import { useDispatch } from "react-redux";
-import { setLogin } from "../redux/user";
+import { isLogin } from "../redux/user";
 
 const SignIn = () => {
   const router = useRouter();
@@ -27,7 +27,7 @@ const SignIn = () => {
   const handelExistingUserEmailLogin = async ({ email, password }) => {
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      dispatch(setLogin());
+      dispatch(isLogin());
       await router.push("/");
     } catch (error) {
       console.error(error.message);
@@ -40,7 +40,7 @@ const SignIn = () => {
         .auth()
         .signInWithPopup(googleProvider)
         .then(() => {
-          dispatch(setLogin());
+          dispatch(isLogin());
           router.push("/");
         });
     } catch (error) {
@@ -54,7 +54,7 @@ const SignIn = () => {
         .auth()
         .signInWithPopup(githubProvider)
         .then(() => {
-          dispatch(setLogin());
+          dispatch(isLogin());
           router.push("/");
         });
     } catch (error) {
@@ -68,7 +68,7 @@ const SignIn = () => {
         .auth()
         .signInWithPopup(twitterProvider)
         .then(() => {
-          dispatch(setLogin());
+          dispatch(isLogin());
           router.push("/");
         });
     } catch (error) {

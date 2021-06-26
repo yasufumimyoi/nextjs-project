@@ -5,18 +5,26 @@ export const fetchMovieData = createAsyncThunk(
   "movie/fetchMovieData",
   async (uid, { dispatch }) => {
     try {
-      await firebase
+      const dataRef = await firebase
         .firestore()
         .collection("users")
         .doc(uid)
         .collection("lists")
-        .orderBy("createdAt", "desc")
-        .get()
-        .then((snapshot) => {
-          snapshot.forEach((doc) => {
-            dispatch(setList(doc.data()));
+        .get();
+      if (!dataRef.empty) {
+        await firebase
+          .firestore()
+          .collection("users")
+          .doc(uid)
+          .collection("lists")
+          .orderBy("createdAt", "desc")
+          .get()
+          .then((snapshot) => {
+            snapshot.forEach((doc) => {
+              dispatch(setList(doc.data()));
+            });
           });
-        });
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -27,16 +35,15 @@ export const movieSlice = createSlice({
   name: "movie",
   initialState: {
     movieList: [],
-    status: false,
+    status: "",
   },
   reducers: {
     addList: (state, action) => {
       state.movieList = [action.payload, ...state.movieList];
     },
     removeList: (state, action) => {
-      state.movieList = state.movieList.filter(
-        (movie) => movie.id !== action.payload
-      );
+      let temp = state.movieList.filter((movie) => movie !== null);
+      state.movieList = temp.filter((movie) => movie.id !== action.payload);
     },
     setList: (state, action) => {
       state.movieList.push(action.payload);
@@ -45,17 +52,21 @@ export const movieSlice = createSlice({
       state.movieList = [];
     },
   },
-  extraReducers: {
-    [fetchMovieData.pending]: (state) => {
-      state.status = false;
-    },
-    [fetchMovieData.fulfilled]: (state, action) => {
-      state.movieList.push(action.payload);
-      state.status = true;
-    },
-    [fetchMovieData.rejected]: (state) => {
-      state.status = false;
-    },
+  extraReducers: (builder) => {
+    builder.addCase(fetchMovieData.pending, (state) => {
+      state.status = "loading";
+    });
+    builder.addCase(fetchMovieData.fulfilled, (state, action) => {
+      if (state.movieList.length > 0) {
+        state.movieList.push(action.payload);
+      } else {
+        state.movieList = [];
+      }
+      state.status = "success";
+    });
+    builder.addCase(fetchMovieData.rejected, (state) => {
+      state.status = "rejected";
+    });
   },
 });
 

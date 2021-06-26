@@ -10,28 +10,18 @@ Result.getInitialProps = async (ctx) => {
   const res = await fetch(SEARCH_API);
   const data = await res.json();
 
-  let selectedData = [];
-
-  for (let i = 0; i < data.data.length; i++) {
-    let temp = {};
-    let id = data.data[i].id;
-    let title = data.data[i].attributes.titles.ja_jp;
-    let image = data.data[i].attributes.posterImage.original;
-    let rating = data.data[i].attributes.averageRating;
-    let episode = data.data[i].attributes.episodeLength;
-    let status = data.data[i].attributes.status;
-    let startDate = data.data[i].attributes.startDate;
-    let youtubeId = data.data[i].attributes.youtubeVideoId;
-    temp["id"] = id;
-    temp["title"] = title;
-    temp["image"] = image;
-    temp["rating"] = rating;
-    temp["episode"] = episode;
-    temp["status"] = status;
-    temp["startDate"] = startDate;
-    temp["youtubeId"] = youtubeId;
-    selectedData.push(temp);
-  }
+  const selectedData = data.data.map((movie) => {
+    const item = {};
+    item["id"] = movie.id;
+    item["title"] = movie.attributes.titles.ja_jp;
+    item["image"] = movie.attributes.posterImage.original;
+    item["rating"] = movie.attributes.averageRating;
+    item["episode"] = movie.attributes.episodeLength;
+    item["status"] = movie.attributes.status;
+    item["startDate"] = movie.attributes.startDate;
+    item["youtubeId"] = movie.attributes.youtubeVideoId;
+    return item;
+  });
 
   return { result: selectedData };
 };

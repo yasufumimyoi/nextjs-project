@@ -5,17 +5,25 @@ export const fetchProfileData = createAsyncThunk(
   "user/fetchProfileData",
   async (uid, { dispatch }) => {
     try {
-      await firebase
+      const dataRef = await firebase
         .firestore()
         .collection("users")
         .doc(uid)
         .collection("profile")
-        .get()
-        .then((snapshot) => {
-          snapshot.forEach((doc) => {
-            dispatch(setProfile(doc.data()));
+        .get();
+      if (!dataRef.empty) {
+        await firebase
+          .firestore()
+          .collection("users")
+          .doc(uid)
+          .collection("profile")
+          .get()
+          .then((snapshot) => {
+            snapshot.forEach((doc) => {
+              dispatch(setProfile(doc.data()));
+            });
           });
-        });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -25,7 +33,7 @@ export const fetchProfileData = createAsyncThunk(
 export const userSlice = createSlice({
   name: "user",
   initialState: {
-    uid: null,
+    uid: "",
     login: false,
     profile: {
       name: "",
@@ -42,10 +50,10 @@ export const userSlice = createSlice({
     removeUid: (state) => {
       state.uid = null;
     },
-    setLogin: (state) => {
+    isLogin: (state) => {
       state.login = true;
     },
-    removeLogin: (state) => {
+    isLogout: (state) => {
       state.login = false;
     },
     setProfile: (state, action) => {
@@ -66,8 +74,8 @@ export const userSlice = createSlice({
 export const {
   setUid,
   removeUid,
-  setLogin,
-  removeLogin,
+  isLogin,
+  isLogout,
   setProfile,
   removeProfile,
 } = userSlice.actions;
