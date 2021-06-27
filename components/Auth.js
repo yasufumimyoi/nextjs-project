@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { firebase } from "../firebase/config";
 import { fetchMovieData } from "../redux/movie";
-import { setUid, isLogin, fetchProfileData } from "../redux/user";
+import { setUid, setLogin, fetchProfileData } from "../redux/user";
 
 const Auth = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ const Auth = () => {
         dispatch(fetchMovieData(uid));
         dispatch(fetchProfileData(uid));
         if (!isAnonymous) {
-          dispatch(isLogin());
+          dispatch(setLogin());
         }
       } else {
         firebase

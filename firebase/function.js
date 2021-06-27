@@ -3,6 +3,7 @@ import { firebase } from "./config";
 export const writeFirestore = (movie, uid) => {
   const time = firebase.firestore.Timestamp.fromMillis(new Date());
   const createdAt = time.seconds;
+  const { id, title, image, averageRating, episodeLength, status } = movie;
   try {
     firebase
       .firestore()
@@ -11,12 +12,12 @@ export const writeFirestore = (movie, uid) => {
       .collection("lists")
       .doc(movie.id)
       .set({
-        id: movie.id,
-        title: movie.title,
-        image: movie.image,
-        rating: movie.rating,
-        episode: movie.episode,
-        status: movie.status,
+        id,
+        title,
+        image,
+        averageRating,
+        episodeLength,
+        status,
         createdAt,
       });
   } catch (error) {

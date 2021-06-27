@@ -56,15 +56,15 @@ const Detail = ({ result }) => {
                     <ThumbUpIcon className="h-5 text-purple-500 mr-1" />
                     <p className="text-sm mb-3 sm:text-base">
                       ユーザースコア :{" "}
-                      {detail.rating != null
-                        ? detail.rating + "%"
+                      {detail.averageRating != null
+                        ? detail.averageRating + "%"
                         : "データがありません"}
                     </p>
                   </div>
                   <div className="flex">
                     <ChatAltIcon className="h-5 text-purple-500 mr-1" />
                     <p className="text-sm mb-3 sm:text-base">
-                      エピソード数：{detail.episode}話
+                      エピソード数：{detail.episodeLength}話
                     </p>
                   </div>
 
@@ -123,10 +123,10 @@ const Detail = ({ result }) => {
                   </div>
                 </div>
               </div>
-              {detail.youtubeId != null && (
+              {detail.youtubeVideoId != null && (
                 <div className="aspect-w-16 aspect-h-9 mt-5 md:mt-14">
                   <iframe
-                    src={`https://www.youtube.com/embed/${detail.youtubeId}`}
+                    src={`https://www.youtube.com/embed/${detail.youtubeVideoId}`}
                     title="YouTube video player"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

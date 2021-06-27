@@ -8,19 +8,36 @@ Result.getInitialProps = async (ctx) => {
   const id = ctx.query.id;
   const SEARCH_API = `https://kitsu.io/api/edge/anime?filter[id]]=${id}`;
   const res = await fetch(SEARCH_API);
-  const data = await res.json();
+  const { data } = await res.json();
 
-  const selectedData = data.data.map((movie) => {
-    const item = {};
-    item["id"] = movie.id;
-    item["title"] = movie.attributes.titles.ja_jp;
-    item["image"] = movie.attributes.posterImage.original;
-    item["rating"] = movie.attributes.averageRating;
-    item["episode"] = movie.attributes.episodeLength;
-    item["status"] = movie.attributes.status;
-    item["startDate"] = movie.attributes.startDate;
-    item["youtubeId"] = movie.attributes.youtubeVideoId;
-    return item;
+  const validTitles = data.filter(
+    (movie) =>
+      movie.attributes.titles.ja_jp !== undefined &&
+      movie.attributes.averageRating !== null
+  );
+
+  const selectedData = validTitles.map((movie) => {
+    const { id } = movie;
+    const {
+      titles,
+      posterImage,
+      averageRating,
+      episodeLength,
+      status,
+      startDate,
+      youtubeVideoId,
+    } = movie.attributes;
+
+    return {
+      id,
+      title: titles.ja_jp,
+      image: posterImage.original,
+      averageRating,
+      episodeLength,
+      status,
+      startDate,
+      youtubeVideoId,
+    };
   });
 
   return { result: selectedData };

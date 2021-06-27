@@ -18,9 +18,9 @@ const Details = ({ results }) => {
   const getMoreMovies = async () => {
     const ANIME_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}&page[offset]=${movies.length}`;
     const request = await fetch(ANIME_API);
-    const newMovies = await request.json();
+    const { data } = await request.json();
 
-    const validTitles = newMovies.data.filter(
+    const validTitles = data.filter(
       (movie) =>
         movie.attributes.titles.ja_jp !== undefined &&
         movie.attributes.averageRating !== null
@@ -29,15 +29,21 @@ const Details = ({ results }) => {
     let filteredData = [];
 
     validTitles.forEach((movie) => {
-      let title = movie.attributes.titles.ja_jp;
+      const title = movie.attributes.titles.ja_jp;
       if (title.indexOf(keyword) > 0) {
-        const item = {};
-        item["id"] = movie.id;
-        item["title"] = movie.attributes.titles.ja_jp;
-        item["image"] = movie.attributes.posterImage.original;
-        item["rating"] = movie.attributes.averageRating;
-        item["episode"] = movie.attributes.episodeLength;
-        item["status"] = movie.attributes.status;
+        const { id } = movie;
+        const { titles, posterImage, averageRating, episodeLength, status } =
+          movie.attributes;
+
+        const item = {
+          id,
+          title: titles.ja_jp,
+          image: posterImage.original,
+          averageRating,
+          episodeLength,
+          status,
+        };
+
         filteredData.push(item);
       }
     });
@@ -75,9 +81,9 @@ Details.getInitialProps = async (ctx) => {
   const SEARCH_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}`;
   const encode = encodeURI(SEARCH_API);
   const res = await fetch(encode);
-  const data = await res.json();
+  const { data } = await res.json();
 
-  const validTitle = data.data.filter(
+  const validTitle = data.filter(
     (movie) =>
       movie.attributes.titles.ja_jp !== undefined &&
       movie.attributes.averageRating !== null
@@ -86,15 +92,19 @@ Details.getInitialProps = async (ctx) => {
   let selectedData = [];
 
   if (validTitle.length > 0) {
-    selectedData = data.data.map((movie) => {
-      const item = {};
-      item["id"] = movie.id;
-      item["title"] = movie.attributes.titles.ja_jp;
-      item["image"] = movie.attributes.posterImage.original;
-      item["rating"] = movie.attributes.averageRating;
-      item["episode"] = movie.attributes.episodeLength;
-      item["status"] = movie.attributes.status;
-      return item;
+    selectedData = validTitle.map((movie) => {
+      const { id } = movie;
+      const { titles, posterImage, averageRating, episodeLength, status } =
+        movie.attributes;
+
+      return {
+        id,
+        title: titles.ja_jp,
+        image: posterImage.original,
+        averageRating,
+        episodeLength,
+        status,
+      };
     });
   }
 

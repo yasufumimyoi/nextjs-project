@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  isLogout,
-  removeUid,
-  removeLogin,
-  removeProfile,
-} from "../../redux/user";
+import { removeUid, removeLogin, removeProfile } from "../../redux/user";
 import { resetList } from "../../redux/movie";
 import { useRouter } from "next/router";
 import { firebase } from "../../firebase/config";
@@ -18,7 +13,7 @@ import {
 } from "@heroicons/react/outline";
 
 const Profile = () => {
-  const { profile, login } = useSelector((state) => state.user);
+  const { profile, isLogin } = useSelector((state) => state.user);
   const { movieList } = useSelector((state) => state.movie);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -32,7 +27,7 @@ const Profile = () => {
           .then(() => {
             router.push("/");
             dispatch(removeUid());
-            dispatch(isLogout());
+            dispatch(removeLogin());
             dispatch(removeProfile());
             dispatch(resetList());
           })
@@ -99,7 +94,7 @@ const Profile = () => {
               </a>
             </Link>
 
-            {login && (
+            {isLogin && (
               <button
                 className="text-white bg-purple-500 rounded px-8 py-2 focus:outline-none mb-5 sm:mr-4 sm:mb-0"
                 onClick={handelDelete}

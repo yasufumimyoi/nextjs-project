@@ -34,7 +34,7 @@ export const userSlice = createSlice({
   name: "user",
   initialState: {
     uid: "",
-    login: false,
+    isLogin: false,
     profile: {
       name: "",
       location: "",
@@ -50,11 +50,11 @@ export const userSlice = createSlice({
     removeUid: (state) => {
       state.uid = null;
     },
-    isLogin: (state) => {
-      state.login = true;
+    setLogin: (state) => {
+      state.isLogin = true;
     },
-    isLogout: (state) => {
-      state.login = false;
+    removeLogin: (state) => {
+      state.isLogin = false;
     },
     setProfile: (state, action) => {
       state.profile = action.payload;
@@ -74,8 +74,8 @@ export const userSlice = createSlice({
 export const {
   setUid,
   removeUid,
-  isLogin,
-  isLogout,
+  setLogin,
+  removeLogin,
   setProfile,
   removeProfile,
 } = userSlice.actions;

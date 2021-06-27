@@ -47,7 +47,9 @@ const CardTest = ({ movie }) => {
           <div className="flex">
             <ThumbUpIcon className="h-5 text-purple-500 mr-2" />
             <p className="text-sm">
-              {movie.rating != null ? movie.rating + "%" : "データがありません"}
+              {movie.averageRating != null
+                ? movie.averageRating + "%"
+                : "データがありません"}
             </p>
           </div>
           <div className="flex">

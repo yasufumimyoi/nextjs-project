@@ -9,13 +9,13 @@ import HeaderItem from "./HeaderItem";
 import Link from "next/link";
 import SearchForm from "./SearchForm";
 import { useSelector, useDispatch } from "react-redux";
-import { isLogout, removeUid, removeProfile } from "../redux/user";
+import { removeLogin, removeUid, removeProfile } from "../redux/user";
 import { resetList } from "../redux/movie";
 import { useRouter } from "next/router";
 import { firebase } from "../firebase/config";
 
 const Header = () => {
-  const { login } = useSelector((state) => state.user);
+  const { isLogin } = useSelector((state) => state.user);
   const router = useRouter();
   const dispath = useDispatch();
 
@@ -28,7 +28,7 @@ const Header = () => {
           alert("ログアウトしました");
           router.push("/");
           dispath(removeUid());
-          dispath(isLogout());
+          dispath(removeLogin());
           dispath(removeProfile());
           dispath(resetList());
           sessionStorage.clear();
@@ -64,7 +64,7 @@ const Header = () => {
               <HeaderItem Icon={UserIcon} title="PROFILE" />
             </a>
           </Link>
-          {login ? (
+          {isLogin ? (
             <button className="focus:outline-none" onClick={handleLogout}>
               <HeaderItem Icon={LogoutIcon} title="LOGOUT" />
             </button>

@@ -16,21 +16,28 @@ const Trending = ({ results }) => {
 
   const getMoreMovies = async () => {
     const request = await fetch(ANIME_API);
-    const newMovies = await request.json();
+    const { data } = await request.json();
 
-    console.log(newMovies.data);
+    const validTitles = data.filter(
+      (movie) =>
+        movie.attributes.titles.ja_jp !== undefined &&
+        movie.attributes.averageRating !== null
+    );
 
-    const selectedData = newMovies.data.map((movie) => {
-      const item = {};
-      item["id"] = movie.id;
-      item["title"] = movie.attributes.titles.ja_jp;
-      item["image"] = movie.attributes.posterImage.original;
-      item["rating"] = movie.attributes.averageRating;
-      item["episode"] = movie.attributes.episodeLength;
-      item["status"] = movie.attributes.status;
-      return item;
+    const selectedData = validTitles.map((movie) => {
+      const { id } = movie;
+      const { titles, posterImage, averageRating, episodeLength, status } =
+        movie.attributes;
+
+      return {
+        id,
+        title: titles.ja_jp,
+        image: posterImage.original,
+        averageRating,
+        episodeLength,
+        status,
+      };
     });
-
     setMovies((movies) => [...movies, ...selectedData]);
   };
 
@@ -59,23 +66,27 @@ Trending.getInitialProps = async (ctx) => {
   const year = ctx.query.year;
   const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=20&page[offset]=0`;
   const res = await fetch(ANIME_API);
-  const data = await res.json();
+  const { data } = await res.json();
 
-  const validTitle = data.data.filter(
+  const validTitles = data.filter(
     (movie) =>
       movie.attributes.titles.ja_jp !== undefined &&
       movie.attributes.averageRating !== null
   );
 
-  const selectedData = validTitle.map((movie) => {
-    const item = {};
-    item["id"] = movie.id;
-    item["title"] = movie.attributes.titles.ja_jp;
-    item["image"] = movie.attributes.posterImage.original;
-    item["rating"] = movie.attributes.averageRating;
-    item["episode"] = movie.attributes.episodeLength;
-    item["status"] = movie.attributes.status;
-    return item;
+  const selectedData = validTitles.map((movie) => {
+    const { id } = movie;
+    const { titles, posterImage, averageRating, episodeLength, status } =
+      movie.attributes;
+
+    return {
+      id,
+      title: titles.ja_jp,
+      image: posterImage.original,
+      averageRating,
+      episodeLength,
+      status,
+    };
   });
 
   return { results: selectedData };
