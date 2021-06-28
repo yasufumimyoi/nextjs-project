@@ -3,38 +3,19 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { useState } from "react";
 import { VideoCameraIcon } from "@heroicons/react/outline";
 import Card from "../components/Card";
+import { fetchMoreMovieData } from "../redux/movie";
+import { useDispatch } from "react-redux";
 
 export default function Home({ results }) {
   const [movies, setMovies] = useState(results);
+  const dispatch = useDispatch();
 
   const getMoreMovies = async () => {
-    const request = await fetch(ANIME_API);
-    const { data } = await request.json();
-
-    const validTitles = data.filter(
-      (movie) =>
-        movie.attributes.titles.ja_jp !== undefined &&
-        movie.attributes.averageRating !== null
-    );
-
-    const selectedData = validTitles.map((movie) => {
-      const { id } = movie;
-      const { titles, posterImage, averageRating, episodeLength, status } =
-        movie.attributes;
-
-      return {
-        id,
-        title: titles.ja_jp,
-        image: posterImage.original,
-        averageRating,
-        episodeLength,
-        status,
-      };
+    const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=2021&filter[status]=current&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
+    dispatch(fetchMoreMovieData(ANIME_API)).then(({ payload }) => {
+      setMovies((movies) => [...movies, ...payload]);
     });
-    setMovies((movies) => [...movies, ...selectedData]);
   };
-
-  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=2021&filter[status]=current&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
 
   return (
     <div>
@@ -72,15 +53,12 @@ export async function getServerSideProps() {
   const { data } = await request.json();
 
   const validTitles = data.filter(
-    (movie) =>
-      movie.attributes.titles.ja_jp !== undefined &&
-      movie.attributes.averageRating !== null
+    (movie) => movie.attributes.titles.ja_jp && movie.attributes.averageRating
   );
 
-  const selectedData = validTitles.map((movie) => {
-    const { id } = movie;
+  const selectedData = validTitles.map(({ id, attributes }) => {
     const { titles, posterImage, averageRating, episodeLength, status } =
-      movie.attributes;
+      attributes;
 
     return {
       id,

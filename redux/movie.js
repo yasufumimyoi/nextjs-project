@@ -31,10 +31,42 @@ export const fetchMovieData = createAsyncThunk(
   }
 );
 
+export const fetchMoreMovieData = createAsyncThunk(
+  "movie/fetchMoreMovieData",
+  async (url) => {
+    try {
+      const request = await fetch(url);
+      const { data } = await request.json();
+      const validTitles = data.filter(
+        (movie) =>
+          movie.attributes.titles.ja_jp && movie.attributes.averageRating
+      );
+      const selectedData = validTitles.map(({ id, attributes }) => {
+        const { titles, posterImage, averageRating, episodeLength, status } =
+          attributes;
+
+        return {
+          id,
+          title: titles.ja_jp,
+          image: posterImage.original,
+          averageRating,
+          episodeLength,
+          status,
+        };
+      });
+
+      return selectedData;
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+);
+
 export const movieSlice = createSlice({
   name: "movie",
   initialState: {
     movieList: [],
+    moreMovieList: [],
     status: "",
   },
   reducers: {
@@ -51,15 +83,19 @@ export const movieSlice = createSlice({
     resetList: (state) => {
       state.movieList = [];
     },
+    getMore: (state, action) => {
+      state.moreMovieList = [...state.moreMovieList, ...action.payload];
+    },
+    resetMore: (state) => {
+      state.moreMovieList = [];
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchMovieData.pending, (state) => {
       state.status = "loading";
     });
-    builder.addCase(fetchMovieData.fulfilled, (state, action) => {
-      if (state.movieList.length > 0) {
-        state.movieList.push(action.payload);
-      } else {
+    builder.addCase(fetchMovieData.fulfilled, (state) => {
+      if (state.movieList.length === 0) {
         state.movieList = [];
       }
       state.status = "success";
@@ -67,9 +103,20 @@ export const movieSlice = createSlice({
     builder.addCase(fetchMovieData.rejected, (state) => {
       state.status = "rejected";
     });
+    builder.addCase(fetchMoreMovieData.pending, (state) => {
+      state.status = "loading";
+    });
+    builder.addCase(fetchMoreMovieData.fulfilled, (state, action) => {
+      state.moreMovieList = [...state.moreMovieList, ...action.payload];
+      state.status = "success";
+    });
+    builder.addCase(fetchMoreMovieData.rejected, (state) => {
+      state.status = "rejected";
+    });
   },
 });
 
-export const { addList, removeList, setList, resetList } = movieSlice.actions;
+export const { addList, removeList, setList, resetList, getMore, resetMore } =
+  movieSlice.actions;
 
 export default movieSlice.reducer;

@@ -11,13 +11,10 @@ Result.getInitialProps = async (ctx) => {
   const { data } = await res.json();
 
   const validTitles = data.filter(
-    (movie) =>
-      movie.attributes.titles.ja_jp !== undefined &&
-      movie.attributes.averageRating !== null
+    (movie) => movie.attributes.titles.ja_jp && movie.attributes.averageRating
   );
 
-  const selectedData = validTitles.map((movie) => {
-    const { id } = movie;
+  const selectedData = validTitles.map(({ id, attributes }) => {
     const {
       titles,
       posterImage,
@@ -26,7 +23,7 @@ Result.getInitialProps = async (ctx) => {
       status,
       startDate,
       youtubeVideoId,
-    } = movie.attributes;
+    } = attributes;
 
     return {
       id,

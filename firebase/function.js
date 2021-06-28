@@ -10,7 +10,7 @@ export const writeFirestore = (movie, uid) => {
       .collection("users")
       .doc(uid)
       .collection("lists")
-      .doc(movie.id)
+      .doc(id)
       .set({
         id,
         title,

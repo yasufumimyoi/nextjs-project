@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
-import { removeUid, removeLogin, removeProfile } from "../../redux/user";
+import { removeUid, Logout, removeProfile } from "../../redux/user";
 import { resetList } from "../../redux/movie";
 import { useRouter } from "next/router";
 import { firebase } from "../../firebase/config";
@@ -27,7 +27,7 @@ const Profile = () => {
           .then(() => {
             router.push("/");
             dispatch(removeUid());
-            dispatch(removeLogin());
+            dispatch(Logout());
             dispatch(removeProfile());
             dispatch(resetList());
           })

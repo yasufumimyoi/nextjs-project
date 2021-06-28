@@ -3,11 +3,15 @@ import { VideoCameraIcon } from "@heroicons/react/outline";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
+import { fetchMoreMovieData } from "../../redux/movie";
 
 const Details = ({ results }) => {
   const router = useRouter();
   const keyword = router.query.keyword;
+  const dispatch = useDispatch();
   const [movies, setMovies] = useState(results);
+  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}&page[offset]=${movies.length}`;
 
   if (movies.length === 0) {
     setMovies([{ id: "No Data" }]);
@@ -16,39 +20,25 @@ const Details = ({ results }) => {
   }
 
   const getMoreMovies = async () => {
-    const ANIME_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}&page[offset]=${movies.length}`;
-    const request = await fetch(ANIME_API);
-    const { data } = await request.json();
-
-    const validTitles = data.filter(
-      (movie) =>
-        movie.attributes.titles.ja_jp !== undefined &&
-        movie.attributes.averageRating !== null
-    );
-
-    let filteredData = [];
-
-    validTitles.forEach((movie) => {
-      const title = movie.attributes.titles.ja_jp;
-      if (title.indexOf(keyword) > 0) {
-        const { id } = movie;
-        const { titles, posterImage, averageRating, episodeLength, status } =
-          movie.attributes;
-
-        const item = {
-          id,
-          title: titles.ja_jp,
-          image: posterImage.original,
-          averageRating,
-          episodeLength,
-          status,
-        };
-
-        filteredData.push(item);
-      }
+    dispatch(fetchMoreMovieData(ANIME_API)).then(({ payload }) => {
+      let filteredData = [];
+      payload.forEach(
+        ({ id, title, image, averageRating, episodeLength, status }) => {
+          if (title.indexOf(keyword) > 0) {
+            const item = {
+              id,
+              title,
+              image,
+              averageRating,
+              episodeLength,
+              status,
+            };
+            filteredData.push(item);
+          }
+        }
+      );
+      setMovies((movies) => [...movies, ...filteredData]);
     });
-
-    setMovies((movies) => [...movies, ...filteredData]);
   };
 
   return (
@@ -84,18 +74,15 @@ Details.getInitialProps = async (ctx) => {
   const { data } = await res.json();
 
   const validTitle = data.filter(
-    (movie) =>
-      movie.attributes.titles.ja_jp !== undefined &&
-      movie.attributes.averageRating !== null
+    (movie) => movie.attributes.titles.ja_jp && movie.attributes.averageRating
   );
 
   let selectedData = [];
 
   if (validTitle.length > 0) {
-    selectedData = validTitle.map((movie) => {
-      const { id } = movie;
+    selectedData = validTitle.map(({ id, attributes }) => {
       const { titles, posterImage, averageRating, episodeLength, status } =
-        movie.attributes;
+        attributes;
 
       return {
         id,

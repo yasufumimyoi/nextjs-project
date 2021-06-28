@@ -48,7 +48,7 @@ const CardTest = ({ movie }) => {
             <ThumbUpIcon className="h-5 text-purple-500 mr-2" />
             <p className="text-sm">
               {movie.averageRating != null
-                ? movie.averageRating + "%"
+                ? `${movie.averageRating}%`
                 : "データがありません"}
             </p>
           </div>
