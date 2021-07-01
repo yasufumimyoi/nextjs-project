@@ -1,26 +1,24 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { VideoCameraIcon } from "@heroicons/react/outline";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Card from "../../components/Card";
-import { useDispatch } from "react-redux";
-import { fetchMoreMovieData } from "../../redux/movie";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMoreMovieData, addMovies } from "../../redux/movie";
 
 const Trending = ({ results }) => {
   const router = useRouter();
   const year = router.query.year;
+  const { movies } = useSelector((state) => state.movie);
   const dispatch = useDispatch();
-  const [movies, setMovies] = useState(results);
 
-  if (movies[0].id != results[0].id) {
-    setMovies(results);
-  }
+  useEffect(() => {
+    dispatch(addMovies(results));
+  }, [year]);
 
   const getMoreMovies = async () => {
     const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
-    dispatch(fetchMoreMovieData(ANIME_API)).then(({ payload }) => {
-      setMovies((movies) => [...movies, ...payload]);
-    });
+    dispatch(fetchMoreMovieData(ANIME_API));
   };
 
   return (
@@ -54,19 +52,12 @@ Trending.getInitialProps = async (ctx) => {
     (movie) => movie.attributes.titles.ja_jp && movie.attributes.averageRating
   );
 
-  const selectedData = validTitles.map(({ id, attributes }) => {
-    const { titles, posterImage, averageRating, episodeLength, status } =
-      attributes;
-
-    return {
-      id,
-      title: titles.ja_jp,
-      image: posterImage.original,
-      averageRating,
-      episodeLength,
-      status,
-    };
-  });
+  const selectedData = validTitles.map(({ id, attributes }) => ({
+    id,
+    ...attributes,
+    title: attributes.titles.ja_jp,
+    image: attributes.posterImage.original,
+  }));
 
   return { results: selectedData };
 };

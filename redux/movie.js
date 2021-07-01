@@ -41,21 +41,47 @@ export const fetchMoreMovieData = createAsyncThunk(
         (movie) =>
           movie.attributes.titles.ja_jp && movie.attributes.averageRating
       );
-      const selectedData = validTitles.map(({ id, attributes }) => {
-        const { titles, posterImage, averageRating, episodeLength, status } =
-          attributes;
 
-        return {
-          id,
-          title: titles.ja_jp,
-          image: posterImage.original,
-          averageRating,
-          episodeLength,
-          status,
-        };
-      });
+      //検索されたkeywordの切り出し
+      const startPoint = url.indexOf("text");
+      const removeFirstPart = url.substr(startPoint + 6);
+      const endPoint = removeFirstPart.lastIndexOf("page");
+      const keyword = removeFirstPart.substr(0, endPoint - 1);
 
-      return selectedData;
+      if (startPoint > 0) {
+        let filteredData = [];
+        validTitles.forEach(({ id, attributes }) => {
+          const { titles, posterImage, averageRating, episodeLength, status } =
+            attributes;
+          if (titles.ja_jp.indexOf(keyword) > 0) {
+            const item = {
+              id,
+              title: titles.ja_jp,
+              image: posterImage.original,
+              averageRating,
+              episodeLength,
+              status,
+            };
+            filteredData.push(item);
+          }
+        });
+        return filteredData;
+      } else {
+        const selectedData = validTitles.map(({ id, attributes }) => {
+          const { titles, posterImage, averageRating, episodeLength, status } =
+            attributes;
+
+          return {
+            id,
+            title: titles.ja_jp,
+            image: posterImage.original,
+            averageRating,
+            episodeLength,
+            status,
+          };
+        });
+        return selectedData;
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -65,8 +91,8 @@ export const fetchMoreMovieData = createAsyncThunk(
 export const movieSlice = createSlice({
   name: "movie",
   initialState: {
+    movies: [],
     movieList: [],
-    moreMovieList: [],
     status: "",
   },
   reducers: {
@@ -74,8 +100,9 @@ export const movieSlice = createSlice({
       state.movieList = [action.payload, ...state.movieList];
     },
     removeList: (state, action) => {
-      let temp = state.movieList.filter((movie) => movie !== null);
-      state.movieList = temp.filter((movie) => movie.id !== action.payload);
+      state.movieList = state.movieList.filter(
+        (movie) => movie.id !== action.payload
+      );
     },
     setList: (state, action) => {
       state.movieList.push(action.payload);
@@ -84,10 +111,13 @@ export const movieSlice = createSlice({
       state.movieList = [];
     },
     getMore: (state, action) => {
-      state.moreMovieList = [...state.moreMovieList, ...action.payload];
+      state.movies = [...state.movies, ...action.payload];
     },
     resetMore: (state) => {
-      state.moreMovieList = [];
+      state.movies = [];
+    },
+    addMovies: (state, action) => {
+      state.movies = [...action.payload];
     },
   },
   extraReducers: (builder) => {
@@ -107,7 +137,7 @@ export const movieSlice = createSlice({
       state.status = "loading";
     });
     builder.addCase(fetchMoreMovieData.fulfilled, (state, action) => {
-      state.moreMovieList = [...state.moreMovieList, ...action.payload];
+      state.movies = [...state.movies, ...action.payload];
       state.status = "success";
     });
     builder.addCase(fetchMoreMovieData.rejected, (state) => {
@@ -116,7 +146,14 @@ export const movieSlice = createSlice({
   },
 });
 
-export const { addList, removeList, setList, resetList, getMore, resetMore } =
-  movieSlice.actions;
+export const {
+  addList,
+  removeList,
+  setList,
+  resetList,
+  getMore,
+  resetMore,
+  addMovies,
+} = movieSlice.actions;
 
 export default movieSlice.reducer;

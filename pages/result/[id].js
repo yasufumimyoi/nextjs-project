@@ -1,8 +1,16 @@
 import Detail from "../../components/Detail";
+import React from "react";
 
-const Result = ({ result }) => {
-  return <Detail result={result} />;
-};
+const Result = React.memo(
+  ({ result }) => {
+    return <Detail result={result} />;
+  },
+  (prevProps, nextProps) => {
+    const prevId = prevProps.result.id;
+    const nextId = nextProps.result.id;
+    return prevId === nextId;
+  }
+);
 
 Result.getInitialProps = async (ctx) => {
   const id = ctx.query.id;
@@ -14,28 +22,12 @@ Result.getInitialProps = async (ctx) => {
     (movie) => movie.attributes.titles.ja_jp && movie.attributes.averageRating
   );
 
-  const selectedData = validTitles.map(({ id, attributes }) => {
-    const {
-      titles,
-      posterImage,
-      averageRating,
-      episodeLength,
-      status,
-      startDate,
-      youtubeVideoId,
-    } = attributes;
-
-    return {
-      id,
-      title: titles.ja_jp,
-      image: posterImage.original,
-      averageRating,
-      episodeLength,
-      status,
-      startDate,
-      youtubeVideoId,
-    };
-  });
+  const selectedData = validTitles.map(({ id, attributes }) => ({
+    id,
+    ...attributes,
+    title: attributes.titles.ja_jp,
+    image: attributes.posterImage.original,
+  }));
 
   return { result: selectedData };
 };

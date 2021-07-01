@@ -53,7 +53,7 @@ export const userSlice = createSlice({
     setLogin: (state) => {
       state.isLogin = true;
     },
-    Logout: (state) => {
+    logout: (state) => {
       state.isLogin = false;
     },
     setProfile: (state, action) => {
@@ -75,7 +75,7 @@ export const {
   setUid,
   removeUid,
   setLogin,
-  Logout,
+  logout,
   setProfile,
   removeProfile,
 } = userSlice.actions;

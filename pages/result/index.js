@@ -1,44 +1,26 @@
 import Card from "../../components/Card";
 import { VideoCameraIcon } from "@heroicons/react/outline";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { useDispatch } from "react-redux";
-import { fetchMoreMovieData } from "../../redux/movie";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMoreMovieData, addMovies } from "../../redux/movie";
 
 const Details = ({ results }) => {
   const router = useRouter();
   const keyword = router.query.keyword;
+  const { movies } = useSelector((state) => state.movie);
   const dispatch = useDispatch();
-  const [movies, setMovies] = useState(results);
   const ANIME_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}&page[offset]=${movies.length}`;
 
-  if (movies.length === 0) {
-    setMovies([{ id: "No Data" }]);
-  } else if (results.length > 0 && movies[0].id != results[0].id) {
-    setMovies(results);
-  }
+  useEffect(() => {
+    if (movies.length) {
+      dispatch(addMovies(results));
+    }
+  }, [keyword]);
 
   const getMoreMovies = async () => {
-    dispatch(fetchMoreMovieData(ANIME_API)).then(({ payload }) => {
-      let filteredData = [];
-      payload.forEach(
-        ({ id, title, image, averageRating, episodeLength, status }) => {
-          if (title.indexOf(keyword) > 0) {
-            const item = {
-              id,
-              title,
-              image,
-              averageRating,
-              episodeLength,
-              status,
-            };
-            filteredData.push(item);
-          }
-        }
-      );
-      setMovies((movies) => [...movies, ...filteredData]);
-    });
+    dispatch(fetchMoreMovieData(ANIME_API));
   };
 
   return (
@@ -53,7 +35,7 @@ const Details = ({ results }) => {
         hasMore={true}
       >
         <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
-          {results.length > 0 ? (
+          {results.length ? (
             movies.map((movie, index) => (
               <Card movie={movie} key={movie.title + index} />
             ))
@@ -80,19 +62,12 @@ Details.getInitialProps = async (ctx) => {
   let selectedData = [];
 
   if (validTitle.length > 0) {
-    selectedData = validTitle.map(({ id, attributes }) => {
-      const { titles, posterImage, averageRating, episodeLength, status } =
-        attributes;
-
-      return {
-        id,
-        title: titles.ja_jp,
-        image: posterImage.original,
-        averageRating,
-        episodeLength,
-        status,
-      };
-    });
+    selectedData = validTitle.map(({ id, attributes }) => ({
+      id,
+      ...attributes,
+      title: attributes.titles.ja_jp,
+      image: attributes.posterImage.original,
+    }));
   }
 
   return { results: selectedData };

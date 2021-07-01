@@ -10,6 +10,7 @@ import { BookmarkIcon as BookdedIcon } from "@heroicons/react/solid";
 import { useSelector, useDispatch } from "react-redux";
 import { addList, removeList } from "../redux/movie";
 import { writeFirestore, removeFirestore } from "../firebase/function";
+import { useEffect } from "react";
 
 const Detail = ({ result }) => {
   const { movieList } = useSelector((state) => state.movie);
@@ -56,7 +57,7 @@ const Detail = ({ result }) => {
                     <ThumbUpIcon className="h-5 text-purple-500 mr-1" />
                     <p className="text-sm mb-3 sm:text-base">
                       ユーザースコア :{" "}
-                      {detail.averageRating != null
+                      {detail.averageRating
                         ? detail.averageRating + "%"
                         : "データがありません"}
                     </p>
@@ -123,7 +124,7 @@ const Detail = ({ result }) => {
                   </div>
                 </div>
               </div>
-              {detail.youtubeVideoId != null && (
+              {detail.youtubeVideoId && (
                 <div className="aspect-w-16 aspect-h-9 mt-5 md:mt-14">
                   <iframe
                     src={`https://www.youtube.com/embed/${detail.youtubeVideoId}`}
