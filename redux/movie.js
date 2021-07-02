@@ -33,53 +33,38 @@ export const fetchMovieData = createAsyncThunk(
 
 export const fetchMoreMovieData = createAsyncThunk(
   "movie/fetchMoreMovieData",
-  async (url) => {
+  async (url, { getState }) => {
     try {
       const request = await fetch(url);
       const { data } = await request.json();
+      const { keyword } = getState().movie;
       const validTitles = data.filter(
         (movie) =>
           movie.attributes.titles.ja_jp && movie.attributes.averageRating
       );
 
-      //検索されたkeywordの切り出し
-      const startPoint = url.indexOf("text");
-      const removeFirstPart = url.substr(startPoint + 6);
-      const endPoint = removeFirstPart.lastIndexOf("page");
-      const keyword = removeFirstPart.substr(0, endPoint - 1);
-
-      if (startPoint > 0) {
-        let filteredData = [];
-        validTitles.forEach(({ id, attributes }) => {
-          const { titles, posterImage, averageRating, episodeLength, status } =
-            attributes;
-          if (titles.ja_jp.indexOf(keyword) > 0) {
-            const item = {
-              id,
-              title: titles.ja_jp,
-              image: posterImage.original,
-              averageRating,
-              episodeLength,
-              status,
-            };
-            filteredData.push(item);
-          }
-        });
-        return filteredData;
+      if (keyword) {
+        const selectedData = validTitles
+          .map(({ id, attributes }) => {
+            const { titles } = attributes;
+            if (titles.ja_jp.indexOf(keyword) > 0) {
+              return {
+                id,
+                ...attributes,
+                title: attributes.titles.ja_jp,
+                image: attributes.posterImage.original,
+              };
+            }
+          })
+          .filter((video) => video !== undefined);
+        return selectedData;
       } else {
-        const selectedData = validTitles.map(({ id, attributes }) => {
-          const { titles, posterImage, averageRating, episodeLength, status } =
-            attributes;
-
-          return {
-            id,
-            title: titles.ja_jp,
-            image: posterImage.original,
-            averageRating,
-            episodeLength,
-            status,
-          };
-        });
+        const selectedData = validTitles.map(({ id, attributes }) => ({
+          id,
+          ...attributes,
+          title: attributes.titles.ja_jp,
+          image: attributes.posterImage.original,
+        }));
         return selectedData;
       }
     } catch (error) {
@@ -93,6 +78,7 @@ export const movieSlice = createSlice({
   initialState: {
     movies: [],
     movieList: [],
+    keyword: "",
     status: "",
   },
   reducers: {
@@ -118,6 +104,9 @@ export const movieSlice = createSlice({
     },
     addMovies: (state, action) => {
       state.movies = [...action.payload];
+    },
+    setKeyword: (state, action) => {
+      state.keyword = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -154,6 +143,7 @@ export const {
   getMore,
   resetMore,
   addMovies,
+  setKeyword,
 } = movieSlice.actions;
 
 export default movieSlice.reducer;

@@ -1,10 +1,10 @@
 import Card from "../../components/Card";
 import { VideoCameraIcon } from "@heroicons/react/outline";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMoreMovieData, addMovies } from "../../redux/movie";
+import { fetchMoreMovieData, addMovies, setKeyword } from "../../redux/movie";
 
 const Details = ({ results }) => {
   const router = useRouter();
@@ -16,12 +16,17 @@ const Details = ({ results }) => {
   useEffect(() => {
     if (movies.length) {
       dispatch(addMovies(results));
+      dispatch(setKeyword(keyword));
     }
   }, [keyword]);
 
   const getMoreMovies = async () => {
     dispatch(fetchMoreMovieData(ANIME_API));
   };
+
+  const MemorizedCard = useMemo(() => {
+    movies.map((video) => <Card movie={video} key={movie.title + index} />);
+  }, [results.length]);
 
   return (
     <div>
@@ -35,13 +40,7 @@ const Details = ({ results }) => {
         hasMore={true}
       >
         <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
-          {results.length ? (
-            movies.map((movie, index) => (
-              <Card movie={movie} key={movie.title + index} />
-            ))
-          ) : (
-            <h2>No data</h2>
-          )}
+          {results.length ? <MemorizedCard /> : <h2>No data</h2>}
         </div>
       </InfiniteScroll>
     </div>
