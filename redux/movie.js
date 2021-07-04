@@ -44,7 +44,7 @@ export const fetchMoreMovieData = createAsyncThunk(
       );
 
       if (keyword) {
-        const selectedData = validTitles
+        return validTitles
           .map(({ id, attributes }) => {
             const { titles } = attributes;
             if (titles.ja_jp.indexOf(keyword) > 0) {
@@ -56,16 +56,14 @@ export const fetchMoreMovieData = createAsyncThunk(
               };
             }
           })
-          .filter((video) => video !== undefined);
-        return selectedData;
+          .filter((video) => video);
       } else {
-        const selectedData = validTitles.map(({ id, attributes }) => ({
+        return validTitles.map(({ id, attributes }) => ({
           id,
           ...attributes,
           title: attributes.titles.ja_jp,
           image: attributes.posterImage.original,
         }));
-        return selectedData;
       }
     } catch (error) {
       console.log(error.message);

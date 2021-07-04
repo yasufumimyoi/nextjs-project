@@ -14,19 +14,18 @@ const Details = ({ results }) => {
   const ANIME_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}&page[offset]=${movies.length}`;
 
   useEffect(() => {
-    if (movies.length) {
-      dispatch(addMovies(results));
-      dispatch(setKeyword(keyword));
-    }
+    dispatch(addMovies(results));
+    dispatch(setKeyword(keyword));
   }, [keyword]);
 
   const getMoreMovies = async () => {
     dispatch(fetchMoreMovieData(ANIME_API));
   };
 
-  const MemorizedCard = useMemo(() => {
-    movies.map((video) => <Card movie={video} key={movie.title + index} />);
-  }, [results.length]);
+  const MemorizedCard = useMemo(
+    () => movies.map((movie) => <Card movie={movie} key={movie.id} />),
+    [movies]
+  );
 
   return (
     <div>
@@ -39,8 +38,14 @@ const Details = ({ results }) => {
         next={getMoreMovies}
         hasMore={true}
       >
-        <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
-          {results.length ? <MemorizedCard /> : <h2>No data</h2>}
+        <div>
+          {results.length ? (
+            <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
+              {MemorizedCard}
+            </div>
+          ) : (
+            <h2>No data</h2>
+          )}
         </div>
       </InfiniteScroll>
     </div>
