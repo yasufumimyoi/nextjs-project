@@ -7,28 +7,28 @@ import {
   ChatAltIcon,
 } from "@heroicons/react/outline";
 import { BookmarkIcon as BookdedIcon } from "@heroicons/react/solid";
-import { useSelector, useDispatch } from "react-redux";
 import { addList, removeList } from "../redux/movie";
 import { writeFirestore, removeFirestore } from "../firebase/function";
-import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../types/hooks";
+import { DetailList, APIProps } from "../types/index";
 
-const Detail = ({ result }) => {
-  const { movieList } = useSelector((state) => state.movie);
-  const { uid } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
+const Detail = ({ result }: DetailList) => {
+  const { movieList } = useAppSelector((state) => state.movie);
+  const { uid } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
 
-  let storeMovie = movieList.find((o) => o.id === result[0].id);
+  let storeMovie = movieList.find((o: APIProps) => o.id === result[0].id);
   const watchList = storeMovie ? true : false;
   const style = storeMovie
     ? "flex h-5 mr-2 cursor-pointer hover:opacity-50 transition duration-300"
     : "flex h-5 mr-2 cursor-auto　focus:outline-none";
 
-  const writeData = (movie) => {
+  const writeData = (movie: APIProps, uid: string) => {
     writeFirestore(movie, uid);
     dispatch(addList(movie));
   };
 
-  const removeData = (id) => {
+  const removeData = (id: string, uid: string) => {
     removeFirestore(id, uid);
     dispatch(removeList(id));
   };

@@ -60,9 +60,11 @@ export async function getServerSideProps() {
 
   const selectedData = validTitles.map(({ id, attributes }) => ({
     id,
-    ...attributes,
     title: attributes.titles.ja_jp,
     image: attributes.posterImage.original,
+    averageRating: attributes.averageRating,
+    episodeLength: attributes.episodeLength,
+    status: attributes.status,
   }));
 
   return {

@@ -1,9 +1,9 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { firebase } from "../firebase/config";
 
 export const fetchProfileData = createAsyncThunk(
   "user/fetchProfileData",
-  async (uid, { dispatch }) => {
+  async (uid: string, { dispatch }) => {
     try {
       const dataRef = await firebase
         .firestore()
@@ -30,36 +30,50 @@ export const fetchProfileData = createAsyncThunk(
   }
 );
 
+type State = {
+  uid: string;
+  isLogin: boolean;
+  profile: {
+    name?: string;
+    location?: string;
+    genre?: string;
+    recommend?: string;
+    image?: string;
+  };
+};
+
+const initialState: State = {
+  uid: "",
+  isLogin: false,
+  profile: {
+    name: "",
+    location: "",
+    genre: "",
+    recommend: "",
+    image: "",
+  },
+};
+
 export const userSlice = createSlice({
   name: "user",
-  initialState: {
-    uid: "",
-    isLogin: false,
-    profile: {
-      name: "",
-      location: "",
-      genre: "",
-      recommend: "",
-      image: "",
-    },
-  },
+  initialState,
   reducers: {
-    setUid: (state, action) => {
+    setUid: (state: State, action: PayloadAction<string>) => {
       state.uid = action.payload;
     },
-    removeUid: (state) => {
-      state.uid = null;
+    removeUid: (state: State) => {
+      state.uid = "";
     },
-    setLogin: (state) => {
+    setLogin: (state: State) => {
       state.isLogin = true;
     },
-    logout: (state) => {
+    logout: (state: State) => {
       state.isLogin = false;
     },
-    setProfile: (state, action) => {
+    setProfile: (state: State, action: PayloadAction<any>) => {
       state.profile = action.payload;
     },
-    removeProfile: (state) => {
+    removeProfile: (state: State) => {
       state.profile = {
         name: "",
         location: "",
