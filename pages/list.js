@@ -1,19 +1,16 @@
 import Link from "next/link";
 import Card from "../components/Card";
-import { GlobalContext } from "../context/GlobalState";
-import { useContext } from "react";
+import { useSelector } from "react-redux";
 
 const List = () => {
-  const { movieList } = useContext(GlobalContext);
+  const { movieList } = useSelector((state) => state.movie);
 
   return (
     <div>
       <h2 className="font-bold text-lg mb-5">お気に入りリスト</h2>
       <div className="sm:grid sm:gap-10 md:grid-cols-2 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
-        {movieList.length > 0 ? (
-          movieList.map((movie, index) => (
-            <Card movie={movie} key={movie.type + index} />
-          ))
+        {movieList.length ? (
+          movieList.map((movie) => <Card movie={movie} key={movie.id} />)
         ) : (
           <div>
             <h2 className="font-semibold text-md mb-5">

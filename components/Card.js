@@ -2,54 +2,59 @@ import Link from "next/link";
 import Image from "next/image";
 import { ThumbUpIcon, BookmarkIcon, TrashIcon } from "@heroicons/react/outline";
 import { BookmarkIcon as BookdedIcon } from "@heroicons/react/solid";
-import { useContext } from "react";
-import { GlobalContext } from "../context/GlobalState";
-const CardTest = ({ movie }) => {
-  const { movieList, addList, removeItem } = useContext(GlobalContext);
+import { useSelector, useDispatch } from "react-redux";
+import { addList, removeList } from "../redux/movie";
+import { writeFirestore, removeFirestore } from "../firebase/function";
 
-  let storeMovie = movieList.find((o) => o.id === movie.id);
-  // let storeMovie = movieList.find((o) => o.movie?.id === movie.id);
+const CardTest = ({ movie }) => {
+  const { movieList } = useSelector((state) => state.movie);
+  const { uid } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  let storeMovie = movieList.find((o) => o?.id === movie.id);
   let watchList = storeMovie ? true : false;
   const style = storeMovie
     ? "h-5  text-purple-500 mr-2 cursor-pointer hover:opacity-50 transition duration-300"
     : "h-5  text-purple-500 mr-2 cursor-auto";
 
+  const writeData = (movie, uid) => {
+    writeFirestore(movie, uid);
+    dispatch(addList(movie));
+  };
+
+  const removeData = (id, uid) => {
+    removeFirestore(id, uid);
+    dispatch(removeList(id));
+  };
+
   return (
     <div className="mb-5 shadow-2xl sm:mb-0">
-      <Link as={`/result/${movie.id}`} href="/result/[id]" key={movie.id}>
+      <Link as={`/result/${movie.id}`} href="/result/[id]">
         <a>
           <Image
-            src={movie.attributes.posterImage.original}
-            width={
-              movie.attributes.posterImage.meta.dimensions.large.width
-                ? movie.attributes.posterImage.meta.dimensions.large.width
-                : 550
-            }
-            height={
-              movie.attributes.posterImage.meta.dimensions.large.height
-                ? movie.attributes.posterImage.meta.dimensions.large.height
-                : 780
-            }
-            alt={movie.attributes.titles.ja_jp}
+            src={movie.image}
+            width={550}
+            height={780}
+            alt={movie.title}
             layout="responsive"
             className="rounded-t-lg hover:opacity-80 transition duration-300"
           />
         </a>
       </Link>
       <div className="p-5">
-        <h2 className="truncate mb-2">{movie.attributes.titles.ja_jp}</h2>
+        <h2 className="truncate mb-2">{movie.title}</h2>
         <div className="flex justify-between">
           <div className="flex">
             <ThumbUpIcon className="h-5 text-purple-500 mr-2" />
             <p className="text-sm">
-              {movie.attributes.averageRating != null
-                ? movie.attributes.averageRating + "%"
+              {movie.averageRating
+                ? `${movie.averageRating}%`
                 : "データがありません"}
             </p>
           </div>
           <div className="flex">
             <button
-              onClick={() => addList(movie)}
+              onClick={() => writeData(movie, uid)}
               disabled={watchList}
               className="focus:outline-none"
             >
@@ -59,7 +64,10 @@ const CardTest = ({ movie }) => {
                 <BookmarkIcon className="h-5 text-purple-500 mr-2 cursor-pointer hover:opacity-50 transition duration-300" />
               )}
             </button>
-            <TrashIcon onClick={() => removeItem(movie.id)} className={style} />
+            <TrashIcon
+              onClick={() => removeData(movie.id, uid)}
+              className={style}
+            />
           </div>
         </div>
       </div>

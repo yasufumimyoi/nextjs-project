@@ -21,7 +21,7 @@ const SearchForm = () => {
     <form onSubmit={onSubmit} className="relative">
       <SearchIcon className="h-5 text-purple-500 mr-2 absolute top-3 left-2" />
       <input
-        className="border px-10 py-2 rounded"
+        className="border px-10 py-2 rounded focus:outline-none"
         type="text"
         value={searchTerm}
         onChange={onChange}

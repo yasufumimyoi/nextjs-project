@@ -1,25 +1,23 @@
 import Head from "next/head";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useState } from "react";
+import { useEffect } from "react";
 import { VideoCameraIcon } from "@heroicons/react/outline";
 import Card from "../components/Card";
+import { fetchMoreMovieData, addMovies } from "../redux/movie";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Home({ results }) {
-  const [movies, setMovies] = useState(results.data);
+  const { movies } = useSelector((state) => state.movie);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(addMovies(results));
+  }, []);
 
   const getMoreMovies = async () => {
-    const request = await fetch(ANIME_API);
-    const newMovies = await request.json();
-
-    const validTitles = newMovies.data.filter(
-      (movie) =>
-        movie.attributes.titles.ja_jp != null &&
-        movie.attributes.ratingRank != null
-    );
-    setMovies((movies) => [...movies, ...validTitles]);
+    const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=2021&filter[status]=current&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
+    dispatch(fetchMoreMovieData(ANIME_API));
   };
-
-  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=2021&filter[status]=current&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
 
   return (
     <div>
@@ -41,7 +39,7 @@ export default function Home({ results }) {
       >
         <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
           {movies.map((movie, index) => (
-            <Card movie={movie} key={movie.type + index} />
+            <Card movie={movie} key={movie.title + index} />
           ))}
         </div>
       </InfiniteScroll>
@@ -54,11 +52,22 @@ export async function getServerSideProps() {
     "https://kitsu.io/api/edge/anime?filter[seasonYear]=2021&filter[status]=current&sort=-averageRating&page[limit]=20&page[offset]=0";
 
   const request = await fetch(ANIME_API);
-  const data = await request.json();
+  const { data } = await request.json();
+
+  const validTitles = data.filter(
+    (movie) => movie.attributes.titles.ja_jp && movie.attributes.averageRating
+  );
+
+  const selectedData = validTitles.map(({ id, attributes }) => ({
+    id,
+    ...attributes,
+    title: attributes.titles.ja_jp,
+    image: attributes.posterImage.original,
+  }));
 
   return {
     props: {
-      results: data,
+      results: selectedData,
     },
   };
 }

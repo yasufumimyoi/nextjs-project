@@ -1,29 +1,24 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { VideoCameraIcon } from "@heroicons/react/outline";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Card from "../../components/Card";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMoreMovieData, addMovies } from "../../redux/movie";
 
 const Trending = ({ results }) => {
   const router = useRouter();
   const year = router.query.year;
-  const [movies, setMovies] = useState(results.data);
-  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
+  const { movies } = useSelector((state) => state.movie);
+  const dispatch = useDispatch();
 
-  if (movies[0].id != results.data[0].id) {
-    setMovies(results.data);
-  }
+  useEffect(() => {
+    dispatch(addMovies(results));
+  }, [year]);
 
   const getMoreMovies = async () => {
-    const request = await fetch(ANIME_API);
-    const newMovies = await request.json();
-
-    const validTitles = newMovies.data.filter(
-      (movie) =>
-        movie.attributes.titles.ja_jp != null &&
-        movie.attributes.ratingRank != null
-    );
-    setMovies((movies) => [...movies, ...validTitles]);
+    const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=20&page[offset]=${movies.length}`;
+    dispatch(fetchMoreMovieData(ANIME_API));
   };
 
   return (
@@ -39,7 +34,7 @@ const Trending = ({ results }) => {
       >
         <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
           {movies.map((movie, index) => (
-            <Card movie={movie} key={movie.type + index} />
+            <Card movie={movie} key={movie.title + index} />
           ))}
         </div>
       </InfiniteScroll>
@@ -49,11 +44,22 @@ const Trending = ({ results }) => {
 
 Trending.getInitialProps = async (ctx) => {
   const year = ctx.query.year;
-  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=10&page[offset]=0`;
+  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[seasonYear]=${year}&sort=-averageRating&page[limit]=20&page[offset]=0`;
   const res = await fetch(ANIME_API);
-  const data = await res.json();
+  const { data } = await res.json();
 
-  return { results: data };
+  const validTitles = data.filter(
+    (movie) => movie.attributes.titles.ja_jp && movie.attributes.averageRating
+  );
+
+  const selectedData = validTitles.map(({ id, attributes }) => ({
+    id,
+    ...attributes,
+    title: attributes.titles.ja_jp,
+    image: attributes.posterImage.original,
+  }));
+
+  return { results: selectedData };
 };
 
 export default Trending;

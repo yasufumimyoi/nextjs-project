@@ -1,57 +1,31 @@
 import Card from "../../components/Card";
 import { VideoCameraIcon } from "@heroicons/react/outline";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMoreMovieData, addMovies, setKeyword } from "../../redux/movie";
 
 const Details = ({ results }) => {
   const router = useRouter();
   const keyword = router.query.keyword;
+  const { movies } = useSelector((state) => state.movie);
+  const dispatch = useDispatch();
+  const ANIME_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}&page[offset]=${movies.length}`;
 
-  const validData = [];
-
-  if (results.meta.count > 0) {
-    const validTitle = results.data.filter(
-      (movie) =>
-        movie.attributes.titles.ja_jp && movie.attributes.ratingRank !== null
-    );
-
-    validTitle.map((movie) => {
-      if (movie.attributes.titles.ja_jp.indexOf(keyword)) {
-        validData.push(movie);
-      }
-    });
-  }
-
-  const [movies, setMovies] = useState(validData);
-
-  if (results.meta.count > 0) {
-    if (movies.length === 0 || movies[0].id != results.data[0].id) {
-      setMovies(results.data);
-    }
-  }
+  useEffect(() => {
+    dispatch(addMovies(results));
+    dispatch(setKeyword(keyword));
+  }, [keyword]);
 
   const getMoreMovies = async () => {
-    const ANIME_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}&page[offset]=${movies.length}`;
-    const request = await fetch(ANIME_API);
-    const newMovies = await request.json();
-
-    const validTitles = newMovies.data.filter(
-      (movie) =>
-        movie.attributes.titles.ja_jp !== null &&
-        movie.attributes.ratingRank !== null
-    );
-
-    let filteredData = [];
-    validTitles.map((movie) => {
-      let title = movie.attributes.titles.ja_jp;
-      if (title.indexOf(keyword) > 0) {
-        filteredData.push(movie);
-      }
-    });
-
-    setMovies((movies) => [...movies, ...filteredData]);
+    dispatch(fetchMoreMovieData(ANIME_API));
   };
+
+  const MemorizedCard = useMemo(
+    () => movies.map((movie) => <Card movie={movie} key={movie.id} />),
+    [movies]
+  );
 
   return (
     <div>
@@ -64,11 +38,11 @@ const Details = ({ results }) => {
         next={getMoreMovies}
         hasMore={true}
       >
-        <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
-          {results.meta.count > 0 ? (
-            movies.map((movie, index) => (
-              <Card movie={movie} key={movie.type + index} />
-            ))
+        <div>
+          {results.length ? (
+            <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
+              {MemorizedCard}
+            </div>
           ) : (
             <h2>No data</h2>
           )}
@@ -83,9 +57,24 @@ Details.getInitialProps = async (ctx) => {
   const SEARCH_API = `https://kitsu.io/api/edge/anime?filter[text]=${keyword}`;
   const encode = encodeURI(SEARCH_API);
   const res = await fetch(encode);
-  const data = await res.json();
+  const { data } = await res.json();
 
-  return { results: data };
+  const validTitle = data.filter(
+    (movie) => movie.attributes.titles.ja_jp && movie.attributes.averageRating
+  );
+
+  let selectedData = [];
+
+  if (validTitle.length > 0) {
+    selectedData = validTitle.map(({ id, attributes }) => ({
+      id,
+      ...attributes,
+      title: attributes.titles.ja_jp,
+      image: attributes.posterImage.original,
+    }));
+  }
+
+  return { results: selectedData };
 };
 
 export default Details;
