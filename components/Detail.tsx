@@ -9,21 +9,43 @@ import {
 import { BookmarkIcon as BookdedIcon } from "@heroicons/react/solid";
 import { addList, removeList } from "../redux/movie";
 import { writeFirestore, removeFirestore } from "../firebase/function";
-import { useAppDispatch, useAppSelector } from "../types/hooks";
-import { DetailList, APIProps } from "../types/index";
+import { RootState } from "../redux/store";
+import { useDispatch, useSelector } from "react-redux";
 
-const Detail = ({ result }: DetailList) => {
-  const { movieList } = useAppSelector((state) => state.movie);
-  const { uid } = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
+enum Status {
+  Current = "current",
+  Finished = "finished",
+  Unreleased = "unreleased",
+}
 
-  let storeMovie = movieList.find((o: APIProps) => o.id === result[0].id);
+type Props = {
+  id: string;
+  title: string;
+  image: string;
+  averageRating: string;
+  episodeLength: number;
+  status: Status;
+  createdAt: string;
+  startDate: string;
+  youtubeVideoId: string;
+};
+
+type ResultList = {
+  result: Props[];
+};
+
+const Detail = ({ result }: ResultList) => {
+  const { movieList } = useSelector((state: RootState) => state.movie);
+  const { uid } = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
+
+  const storeMovie = movieList.find((o) => o.id === result[0].id);
   const watchList = storeMovie ? true : false;
   const style = storeMovie
     ? "flex h-5 mr-2 cursor-pointer hover:opacity-50 transition duration-300"
     : "flex h-5 mr-2 cursor-auto　focus:outline-none";
 
-  const writeData = (movie: APIProps, uid: string) => {
+  const writeData = (movie: Props, uid: string) => {
     writeFirestore(movie, uid);
     dispatch(addList(movie));
   };
@@ -69,7 +91,7 @@ const Detail = ({ result }: DetailList) => {
                     </p>
                   </div>
 
-                  {detail.status === "finished" && (
+                  {detail.status === Status.Finished && (
                     <div className="flex">
                       <ClockIcon className="h-5 text-purple-500 mr-1" />
                       <p className="text-sm mb-3 sm:text-base">
@@ -77,7 +99,7 @@ const Detail = ({ result }: DetailList) => {
                       </p>
                     </div>
                   )}
-                  {detail.status === "current" && (
+                  {detail.status === Status.Current && (
                     <div className="flex">
                       <ClockIcon className="h-5 text-purple-500 mr-1" />
                       <p className="text-sm mb-5 sm:text-base">
@@ -85,7 +107,7 @@ const Detail = ({ result }: DetailList) => {
                       </p>
                     </div>
                   )}
-                  {detail.status === "unreleased" && (
+                  {detail.status === Status.Unreleased && (
                     <div className="flex">
                       <ClockIcon className="h-5 text-purple-500 mr-1" />
                       <p className="mb-5 sm:text-base">ステータス : 放送予定</p>

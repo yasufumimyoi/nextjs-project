@@ -1,6 +1,26 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { firebase } from "../firebase/config";
 
+enum Genre {
+  Action = "アクション",
+  Fantasy = "ファンタジー",
+  Romance = "恋愛",
+  Life = "日常",
+  Sports = "スポーツ",
+  Comedy = "コメディ",
+  Horror = "ホラー",
+  Youth = "青春",
+  Empty = "",
+}
+
+type Props = {
+  name: string;
+  location: string;
+  genre: Genre;
+  recommend: string;
+  image: string;
+};
+
 export const fetchProfileData = createAsyncThunk(
   "user/fetchProfileData",
   async (uid: string, { dispatch }) => {
@@ -20,7 +40,8 @@ export const fetchProfileData = createAsyncThunk(
           .get()
           .then((snapshot) => {
             snapshot.forEach((doc) => {
-              dispatch(setProfile(doc.data()));
+              const data = doc.data() as Props;
+              dispatch(setProfile(data));
             });
           });
       }
@@ -34,11 +55,11 @@ type State = {
   uid: string;
   isLogin: boolean;
   profile: {
-    name?: string;
-    location?: string;
-    genre?: string;
-    recommend?: string;
-    image?: string;
+    name: string;
+    location: string;
+    genre: Genre;
+    recommend: string;
+    image: string;
   };
 };
 
@@ -48,7 +69,7 @@ const initialState: State = {
   profile: {
     name: "",
     location: "",
-    genre: "",
+    genre: Genre.Empty,
     recommend: "",
     image: "",
   },
@@ -70,14 +91,14 @@ export const userSlice = createSlice({
     logout: (state: State) => {
       state.isLogin = false;
     },
-    setProfile: (state: State, action: PayloadAction<any>) => {
+    setProfile: (state: State, action: PayloadAction<Props>) => {
       state.profile = action.payload;
     },
     removeProfile: (state: State) => {
       state.profile = {
         name: "",
         location: "",
-        genre: "",
+        genre: Genre.Empty,
         recommend: "",
         image: "",
       };

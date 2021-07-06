@@ -1,7 +1,22 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { firebase } from "../firebase/config";
 import { RootState } from "../redux/store";
-import { APIProps } from "../types/index";
+
+enum Status {
+  Current = "current",
+  Finished = "finished",
+  Unreleased = "unreleased",
+}
+
+type Props = {
+  id: string;
+  title: string;
+  image: string;
+  averageRating: string;
+  episodeLength: number;
+  status: Status;
+  createdAt: string;
+};
 
 export const fetchMovieData = createAsyncThunk(
   "movie/fetchMovieData",
@@ -23,7 +38,8 @@ export const fetchMovieData = createAsyncThunk(
           .get()
           .then((snapshot) => {
             snapshot.forEach((doc) => {
-              dispatch(setList(doc.data()));
+              const data = doc.data() as Props;
+              dispatch(setList(data));
             });
           });
       }
@@ -35,11 +51,11 @@ export const fetchMovieData = createAsyncThunk(
 
 export const fetchMoreMovieData = createAsyncThunk(
   "movie/fetchMoreMovieData",
-  async (url: string, thunkApi) => {
+  async (url: string, { getState }) => {
     try {
       const request = await fetch(url);
       const { data } = await request.json();
-      const { keyword } = (thunkApi.getState() as RootState).movie;
+      const { keyword } = (getState() as RootState).movie;
       const validTitles = data.filter(
         (movie: any) =>
           movie.attributes.titles.ja_jp && movie.attributes.averageRating
@@ -58,7 +74,7 @@ export const fetchMoreMovieData = createAsyncThunk(
               };
             }
           })
-          .filter((video: APIProps) => video);
+          .filter((video: Props) => video);
       } else {
         return validTitles.map(
           ({ id, attributes }: { id: string; attributes: any }) => ({
@@ -76,8 +92,8 @@ export const fetchMoreMovieData = createAsyncThunk(
 );
 
 type State = {
-  movies: APIProps[];
-  movieList: APIProps[];
+  movies: Props[];
+  movieList: Props[];
   keyword: string;
   status: string;
 };
@@ -93,7 +109,7 @@ export const movieSlice = createSlice({
   name: "movie",
   initialState,
   reducers: {
-    addList: (state: State, action: PayloadAction<APIProps>) => {
+    addList: (state: State, action: PayloadAction<Props>) => {
       state.movieList = [action.payload, ...state.movieList];
     },
     removeList: (state: State, action: PayloadAction<string>) => {
@@ -101,19 +117,19 @@ export const movieSlice = createSlice({
         (movie) => movie.id !== action.payload
       );
     },
-    setList: (state: State, action: PayloadAction<any>) => {
+    setList: (state: State, action: PayloadAction<Props>) => {
       state.movieList.push(action.payload);
     },
     resetList: (state: State) => {
       state.movieList = [];
     },
-    getMore: (state: State, action: PayloadAction<APIProps[]>) => {
+    getMore: (state: State, action: PayloadAction<Props[]>) => {
       state.movies = [...state.movies, ...action.payload];
     },
     resetMore: (state: State) => {
       state.movies = [];
     },
-    addMovies: (state: State, action: PayloadAction<APIProps[]>) => {
+    addMovies: (state: State, action: PayloadAction<Props[]>) => {
       state.movies = [...action.payload];
     },
     setKeyword: (state: State, action: PayloadAction<string>) => {

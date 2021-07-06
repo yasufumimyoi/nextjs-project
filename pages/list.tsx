@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Card from "../components/Card";
 import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const List = () => {
-  const { movieList } = useSelector((state) => state.movie);
+  const { movieList } = useSelector((state: RootState) => state.movie);
 
   return (
     <div>

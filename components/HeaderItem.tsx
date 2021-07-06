@@ -1,4 +1,4 @@
-import { HeroIcon } from "../types/index";
+type HeroIcon = (props: React.ComponentProps<"svg">) => JSX.Element;
 
 const HeaderItem = ({ Icon, title }: { Icon: HeroIcon; title: string }) => (
   <div className="flex flex-col items-center group hover:opacity-50 duration-300">

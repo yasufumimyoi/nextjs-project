@@ -12,12 +12,13 @@ import { logout, removeUid, removeProfile } from "../redux/user";
 import { resetList } from "../redux/movie";
 import { useRouter } from "next/router";
 import { firebase } from "../firebase/config";
-import { useAppDispatch, useAppSelector } from "../types/hooks";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const Header = () => {
-  const { isLogin } = useAppSelector((state) => state.user);
+  const { isLogin } = useSelector((state: RootState) => state.user);
   const router = useRouter();
-  const dispath = useAppDispatch();
+  const dispath = useDispatch();
 
   const handleLogout = () => {
     try {

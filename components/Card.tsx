@@ -4,21 +4,37 @@ import { ThumbUpIcon, BookmarkIcon, TrashIcon } from "@heroicons/react/outline";
 import { BookmarkIcon as BookdedIcon } from "@heroicons/react/solid";
 import { addList, removeList } from "../redux/movie";
 import { writeFirestore, removeFirestore } from "../firebase/function";
-import { APIProps } from "../types/index";
-import { useAppDispatch, useAppSelector } from "../types/hooks";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
-const CardTest = ({ movie }: { movie: APIProps }) => {
-  const { movieList } = useAppSelector((state) => state.movie);
-  const { uid } = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
+enum Status {
+  Current = "current",
+  Finished = "finished",
+  Unreleased = "unreleased",
+}
 
-  let storeMovie = movieList.find((o: APIProps) => o?.id === movie.id);
-  let watchList = storeMovie ? true : false;
+type Props = {
+  id: string;
+  title: string;
+  image: string;
+  averageRating: string;
+  episodeLength: number;
+  status: Status;
+  createdAt: string;
+};
+
+const CardTest = ({ movie }: { movie: Props }) => {
+  const { movieList } = useSelector((state: RootState) => state.movie);
+  const { uid } = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
+
+  const storeMovie = movieList.find((o) => o?.id === movie.id);
+  const watchList = storeMovie ? true : false;
   const style = storeMovie
     ? "h-5  text-purple-500 mr-2 cursor-pointer hover:opacity-50 transition duration-300"
     : "h-5  text-purple-500 mr-2 cursor-auto";
 
-  const writeData = (movie: APIProps, uid: string) => {
+  const writeData = (movie: Props, uid: string) => {
     writeFirestore(movie, uid);
     dispatch(addList(movie));
   };
