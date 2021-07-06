@@ -8,7 +8,7 @@ import { useState } from "react";
 import { firebase } from "../../firebase/config";
 import { RootState } from "../../redux/store";
 
-enum Genre {
+export enum Genre {
   Action = "アクション",
   Fantasy = "ファンタジー",
   Romance = "恋愛",
@@ -20,7 +20,7 @@ enum Genre {
   Empty = "",
 }
 
-type Props = {
+export type ProfileData = {
   name: string;
   location: string;
   genre: Genre;
@@ -39,8 +39,9 @@ const Edit = () => {
 
   const onChange = async (e: React.ChangeEvent) => {
     const target = e.target as HTMLInputElement;
-    const name: string = (target.files as FileList)[0].name;
-    const imageData: File = (target.files as FileList)[0];
+    const fileList = target.files as FileList;
+    const name: string = fileList[0].name;
+    const imageData: File = fileList[0];
     const storageRef = firebase.storage().ref();
     const fileRef = storageRef.child(imageData.name);
     await fileRef.put(imageData);
@@ -48,7 +49,7 @@ const Edit = () => {
     setImageAsFile(await fileRef.getDownloadURL());
   };
 
-  const onSubmit = async (data: Props) => {
+  const onSubmit = async (data: ProfileData) => {
     if (imageName === "") {
       data.image = profile.image;
     } else {

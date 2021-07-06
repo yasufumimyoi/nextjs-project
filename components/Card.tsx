@@ -6,14 +6,9 @@ import { addList, removeList } from "../redux/movie";
 import { writeFirestore, removeFirestore } from "../firebase/function";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { Status } from "../types/index";
 
-enum Status {
-  Current = "current",
-  Finished = "finished",
-  Unreleased = "unreleased",
-}
-
-type Props = {
+export type MovieData = {
   id: string;
   title: string;
   image: string;
@@ -23,18 +18,18 @@ type Props = {
   createdAt: string;
 };
 
-const CardTest = ({ movie }: { movie: Props }) => {
+const Card = (movie: MovieData) => {
   const { movieList } = useSelector((state: RootState) => state.movie);
   const { uid } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
   const storeMovie = movieList.find((o) => o?.id === movie.id);
-  const watchList = storeMovie ? true : false;
+  const watchList = !!storeMovie;
   const style = storeMovie
     ? "h-5  text-purple-500 mr-2 cursor-pointer hover:opacity-50 transition duration-300"
     : "h-5  text-purple-500 mr-2 cursor-auto";
 
-  const writeData = (movie: Props, uid: string) => {
+  const writeData = (movie: MovieData, uid: string) => {
     writeFirestore(movie, uid);
     dispatch(addList(movie));
   };
@@ -92,4 +87,4 @@ const CardTest = ({ movie }: { movie: Props }) => {
   );
 };
 
-export default CardTest;
+export default Card;

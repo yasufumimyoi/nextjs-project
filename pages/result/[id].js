@@ -1,16 +1,9 @@
 import Detail from "../../components/Detail";
 import React from "react";
 
-const Result = React.memo(
-  ({ result }) => {
-    return <Detail result={result} />;
-  },
-  (prevProps, nextProps) => {
-    const prevId = prevProps.result.id;
-    const nextId = nextProps.result.id;
-    return prevId === nextId;
-  }
-);
+const Result = ({ result }) => {
+  return result.map((data) => <Detail key={data.id} {...data} />);
+};
 
 Result.getInitialProps = async (ctx) => {
   const id = ctx.query.id;

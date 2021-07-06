@@ -39,7 +39,7 @@ export default function Home({ results }) {
       >
         <div className="sm:grid sm:gap-10 md:grid-cols-3 xl:grid-cols-4 xl:max-w-7xl xl:mx-auto">
           {movies.map((movie, index) => (
-            <Card movie={movie} key={movie.title + index} />
+            <Card {...movie} key={movie.title + index} />
           ))}
         </div>
       </InfiniteScroll>

@@ -1,25 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { firebase } from "../firebase/config";
+import { ProfileData, Genre } from "../pages/profile/edit";
 
-enum Genre {
-  Action = "アクション",
-  Fantasy = "ファンタジー",
-  Romance = "恋愛",
-  Life = "日常",
-  Sports = "スポーツ",
-  Comedy = "コメディ",
-  Horror = "ホラー",
-  Youth = "青春",
-  Empty = "",
-}
-
-type Props = {
-  name: string;
-  location: string;
-  genre: Genre;
-  recommend: string;
-  image: string;
-};
+type Payload = ProfileData;
 
 export const fetchProfileData = createAsyncThunk(
   "user/fetchProfileData",
@@ -40,7 +23,7 @@ export const fetchProfileData = createAsyncThunk(
           .get()
           .then((snapshot) => {
             snapshot.forEach((doc) => {
-              const data = doc.data() as Props;
+              const data = doc.data() as Payload;
               dispatch(setProfile(data));
             });
           });
@@ -91,7 +74,7 @@ export const userSlice = createSlice({
     logout: (state: State) => {
       state.isLogin = false;
     },
-    setProfile: (state: State, action: PayloadAction<Props>) => {
+    setProfile: (state: State, action: PayloadAction<Payload>) => {
       state.profile = action.payload;
     },
     removeProfile: (state: State) => {

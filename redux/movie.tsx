@@ -1,22 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { firebase } from "../firebase/config";
 import { RootState } from "../redux/store";
+import { Status } from "../types/index";
+import { MovieData } from "../components/Card";
 
-enum Status {
-  Current = "current",
-  Finished = "finished",
-  Unreleased = "unreleased",
-}
-
-type Props = {
-  id: string;
-  title: string;
-  image: string;
-  averageRating: string;
-  episodeLength: number;
-  status: Status;
-  createdAt: string;
-};
+type PyaLoad = MovieData;
 
 export const fetchMovieData = createAsyncThunk(
   "movie/fetchMovieData",
@@ -38,7 +26,7 @@ export const fetchMovieData = createAsyncThunk(
           .get()
           .then((snapshot) => {
             snapshot.forEach((doc) => {
-              const data = doc.data() as Props;
+              const data = doc.data() as PyaLoad;
               dispatch(setList(data));
             });
           });
@@ -74,7 +62,7 @@ export const fetchMoreMovieData = createAsyncThunk(
               };
             }
           })
-          .filter((video: Props) => video);
+          .filter((video: PyaLoad) => video);
       } else {
         return validTitles.map(
           ({ id, attributes }: { id: string; attributes: any }) => ({
@@ -92,8 +80,8 @@ export const fetchMoreMovieData = createAsyncThunk(
 );
 
 type State = {
-  movies: Props[];
-  movieList: Props[];
+  movies: PyaLoad[];
+  movieList: PyaLoad[];
   keyword: string;
   status: string;
 };
@@ -109,7 +97,7 @@ export const movieSlice = createSlice({
   name: "movie",
   initialState,
   reducers: {
-    addList: (state: State, action: PayloadAction<Props>) => {
+    addList: (state: State, action: PayloadAction<PyaLoad>) => {
       state.movieList = [action.payload, ...state.movieList];
     },
     removeList: (state: State, action: PayloadAction<string>) => {
@@ -117,19 +105,19 @@ export const movieSlice = createSlice({
         (movie) => movie.id !== action.payload
       );
     },
-    setList: (state: State, action: PayloadAction<Props>) => {
+    setList: (state: State, action: PayloadAction<PyaLoad>) => {
       state.movieList.push(action.payload);
     },
     resetList: (state: State) => {
       state.movieList = [];
     },
-    getMore: (state: State, action: PayloadAction<Props[]>) => {
+    getMore: (state: State, action: PayloadAction<PyaLoad[]>) => {
       state.movies = [...state.movies, ...action.payload];
     },
     resetMore: (state: State) => {
       state.movies = [];
     },
-    addMovies: (state: State, action: PayloadAction<Props[]>) => {
+    addMovies: (state: State, action: PayloadAction<PyaLoad[]>) => {
       state.movies = [...action.payload];
     },
     setKeyword: (state: State, action: PayloadAction<string>) => {
