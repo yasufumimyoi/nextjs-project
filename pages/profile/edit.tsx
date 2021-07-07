@@ -7,26 +7,7 @@ import { PhotographIcon, DocumentIcon } from "@heroicons/react/outline";
 import { useState } from "react";
 import { firebase } from "../../firebase/config";
 import { RootState } from "../../redux/store";
-
-export enum Genre {
-  Action = "アクション",
-  Fantasy = "ファンタジー",
-  Romance = "恋愛",
-  Life = "日常",
-  Sports = "スポーツ",
-  Comedy = "コメディ",
-  Horror = "ホラー",
-  Youth = "青春",
-  Empty = "",
-}
-
-export type ProfileData = {
-  name: string;
-  location: string;
-  genre: Genre;
-  recommend: string;
-  image: string;
-};
+import { ProfileData } from "../../redux/user";
 
 const Edit = () => {
   const router = useRouter();

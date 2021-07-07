@@ -2,9 +2,30 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { firebase } from "../firebase/config";
 import { RootState } from "../redux/store";
 import { Status } from "../types/index";
-import { MovieData } from "../components/Card";
 
-type PyaLoad = MovieData;
+export type MovieData = {
+  id: string;
+  title: string;
+  image: string;
+  averageRating: string;
+  episodeLength: number;
+  status: Status;
+  createdAt: string;
+};
+
+type State = {
+  movies: MovieData[];
+  movieList: MovieData[];
+  keyword: string;
+  status: string;
+};
+
+const initialState: State = {
+  movies: [],
+  movieList: [],
+  keyword: "",
+  status: "",
+};
 
 export const fetchMovieData = createAsyncThunk(
   "movie/fetchMovieData",
@@ -26,7 +47,7 @@ export const fetchMovieData = createAsyncThunk(
           .get()
           .then((snapshot) => {
             snapshot.forEach((doc) => {
-              const data = doc.data() as PyaLoad;
+              const data = doc.data() as MovieData;
               dispatch(setList(data));
             });
           });
@@ -44,32 +65,85 @@ export const fetchMoreMovieData = createAsyncThunk(
       const request = await fetch(url);
       const { data } = await request.json();
       const { keyword } = (getState() as RootState).movie;
-      const validTitles = data.filter(
-        (movie: any) =>
-          movie.attributes.titles.ja_jp && movie.attributes.averageRating
-      );
+
+      const validTitles = data
+        .filter(
+          ({
+            attributes: {
+              titles: { ja_jp },
+              averageRating,
+            },
+          }: {
+            attributes: { titles: { ja_jp: string }; averageRating: string };
+          }) => ja_jp && averageRating
+        )
+        .map(
+          ({
+            id,
+            attributes: {
+              titles: { ja_jp },
+              posterImage: { original },
+              averageRating,
+            },
+          }: {
+            id: string;
+            attributes: {
+              titles: { ja_jp: string };
+              posterImage: { original: string };
+              averageRating: string;
+            };
+          }) => {
+            return {
+              id,
+              title: ja_jp,
+              image: original,
+              averageRating,
+            };
+          }
+        );
 
       if (keyword) {
         return validTitles
-          .map(({ id, attributes }: { id: string; attributes: any }) => {
-            const { titles } = attributes;
-            if (titles.ja_jp.indexOf(keyword) > 0) {
-              return {
-                id,
-                ...attributes,
-                title: attributes.titles.ja_jp,
-                image: attributes.posterImage.original,
-              };
+          .map(
+            ({
+              id,
+              title,
+              image,
+              averageRating,
+            }: {
+              id: string;
+              title: string;
+              image: string;
+              averageRating: string;
+            }) => {
+              if (title.indexOf(keyword) > 0) {
+                return {
+                  id,
+                  title,
+                  image,
+                  averageRating,
+                };
+              }
             }
-          })
-          .filter((video: PyaLoad) => video);
+          )
+          .filter((video: MovieData) => video);
       } else {
         return validTitles.map(
-          ({ id, attributes }: { id: string; attributes: any }) => ({
+          ({
             id,
-            ...attributes,
-            title: attributes.titles.ja_jp,
-            image: attributes.posterImage.original,
+            title,
+            image,
+            averageRating,
+          }: {
+            id: string;
+            title: string;
+            image: string;
+            averageRating: string;
+          }) => ({
+            id,
+            title,
+            image,
+            averageRating,
           })
         );
       }
@@ -79,25 +153,11 @@ export const fetchMoreMovieData = createAsyncThunk(
   }
 );
 
-type State = {
-  movies: PyaLoad[];
-  movieList: PyaLoad[];
-  keyword: string;
-  status: string;
-};
-
-const initialState: State = {
-  movies: [],
-  movieList: [],
-  keyword: "",
-  status: "",
-};
-
 export const movieSlice = createSlice({
   name: "movie",
   initialState,
   reducers: {
-    addList: (state: State, action: PayloadAction<PyaLoad>) => {
+    addList: (state: State, action: PayloadAction<MovieData>) => {
       state.movieList = [action.payload, ...state.movieList];
     },
     removeList: (state: State, action: PayloadAction<string>) => {
@@ -105,19 +165,19 @@ export const movieSlice = createSlice({
         (movie) => movie.id !== action.payload
       );
     },
-    setList: (state: State, action: PayloadAction<PyaLoad>) => {
+    setList: (state: State, action: PayloadAction<MovieData>) => {
       state.movieList.push(action.payload);
     },
     resetList: (state: State) => {
       state.movieList = [];
     },
-    getMore: (state: State, action: PayloadAction<PyaLoad[]>) => {
+    getMore: (state: State, action: PayloadAction<MovieData[]>) => {
       state.movies = [...state.movies, ...action.payload];
     },
     resetMore: (state: State) => {
       state.movies = [];
     },
-    addMovies: (state: State, action: PayloadAction<PyaLoad[]>) => {
+    addMovies: (state: State, action: PayloadAction<MovieData[]>) => {
       state.movies = [...action.payload];
     },
     setKeyword: (state: State, action: PayloadAction<string>) => {

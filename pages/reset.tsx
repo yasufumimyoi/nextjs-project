@@ -16,7 +16,7 @@ const Reset = () => {
     resolver: yupResolver(schema),
   });
 
-  const handleReset = (email) => {
+  const handleReset = (email: string) => {
     firebase
       .auth()
       .sendPasswordResetEmail(email)
@@ -53,7 +53,6 @@ const Reset = () => {
               }`}
               type="text"
               placeholder="Email"
-              name="email"
               {...register("email")}
             />
             <button className="text-white bg-purple-500 rounded px-8 py-2 mb-5 focus:outline-none">

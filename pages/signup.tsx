@@ -24,7 +24,7 @@ const SignUp = () => {
     resolver: yupResolver(schema),
   });
 
-  const createAccountWithEmail = async ({ email, password }) => {
+  const createAccountWithEmail = async (email: string, password: string) => {
     try {
       await firebase.auth().createUserWithEmailAndPassword(email, password);
       dispatch(setLogin());
@@ -37,7 +37,7 @@ const SignUp = () => {
 
   const createAccountWithGoogle = async () => {
     try {
-      await firebase.auth().currentUser.linkWithPopup(googleProvider);
+      await firebase.auth()?.currentUser?.linkWithPopup(googleProvider);
       dispatch(setLogin());
       router.push("/");
     } catch (error) {
@@ -48,7 +48,7 @@ const SignUp = () => {
 
   const createAccountWithGithub = async () => {
     try {
-      await firebase.auth().currentUser.linkWithPopup(githubProvider);
+      await firebase.auth()?.currentUser?.linkWithPopup(githubProvider);
       dispatch(setLogin());
       router.push("/");
     } catch (error) {
@@ -59,7 +59,7 @@ const SignUp = () => {
 
   const createAccountWithTwitter = async () => {
     try {
-      await firebase.auth().currentUser.linkWithPopup(twitterProvider);
+      await firebase.auth()?.currentUser?.linkWithPopup(twitterProvider);
       dispatch(setLogin());
       router.push("/");
     } catch (error) {
@@ -104,7 +104,9 @@ const SignUp = () => {
           </div>
           <form
             className="flex flex-col  w-80"
-            onSubmit={handleSubmit(createAccountWithEmail)}
+            onSubmit={handleSubmit(({ email, password }) => {
+              createAccountWithEmail(email, password);
+            })}
           >
             {errors.email && (
               <p className="text-red-500 text-sm text-center">
@@ -117,7 +119,6 @@ const SignUp = () => {
               }`}
               type="text"
               placeholder="Email"
-              name="email"
               {...register("email")}
             />
             {errors.password && (
@@ -131,7 +132,6 @@ const SignUp = () => {
               }`}
               type="password"
               placeholder="Password"
-              name="password"
               {...register("password")}
             />
             <button

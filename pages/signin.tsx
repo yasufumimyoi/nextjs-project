@@ -24,7 +24,10 @@ const SignIn = () => {
     resolver: yupResolver(schema),
   });
 
-  const handelExistingUserEmailLogin = async ({ email, password }) => {
+  const handelExistingUserEmailLogin = async (
+    email: string,
+    password: string
+  ) => {
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
       dispatch(setLogin());
@@ -111,7 +114,9 @@ const SignIn = () => {
         </div>
         <form
           className="flex flex-col w-80 mx-auto sm:mx-0"
-          onSubmit={handleSubmit(handelExistingUserEmailLogin)}
+          onSubmit={handleSubmit(({ email, password }) => {
+            handelExistingUserEmailLogin(email, password);
+          })}
         >
           {errors.email && (
             <p className="text-red-500 text-sm text-center">
@@ -124,7 +129,6 @@ const SignIn = () => {
             }`}
             type="text"
             placeholder="Email"
-            name="email"
             {...register("email")}
           />
           {errors.password && (
@@ -138,7 +142,6 @@ const SignIn = () => {
             }`}
             type="password"
             placeholder="Password"
-            name="password"
             {...register("password")}
           />
           <Link href="/reset">

@@ -12,7 +12,7 @@ import { writeFirestore, removeFirestore } from "../firebase/function";
 import { RootState } from "../redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { Status } from "../types/index";
-import { MovieData } from "../components/Card";
+import { MovieData } from "../redux/movie";
 
 type DetailData = {
   startDate: string;

@@ -1,8 +1,43 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { firebase } from "../firebase/config";
-import { ProfileData, Genre } from "../pages/profile/edit";
 
-type Payload = ProfileData;
+export enum Genre {
+  Action = "アクション",
+  Fantasy = "ファンタジー",
+  Romance = "恋愛",
+  Life = "日常",
+  Sports = "スポーツ",
+  Comedy = "コメディ",
+  Horror = "ホラー",
+  Youth = "青春",
+  Empty = "",
+}
+
+export type ProfileData = {
+  name: string;
+  location: string;
+  genre: Genre;
+  recommend: string;
+  image: string;
+};
+
+type State = {
+  uid: string;
+  isLogin: boolean;
+  profile: ProfileData;
+};
+
+const initialState: State = {
+  uid: "",
+  isLogin: false,
+  profile: {
+    name: "",
+    location: "",
+    genre: Genre.Empty,
+    recommend: "",
+    image: "",
+  },
+};
 
 export const fetchProfileData = createAsyncThunk(
   "user/fetchProfileData",
@@ -23,7 +58,7 @@ export const fetchProfileData = createAsyncThunk(
           .get()
           .then((snapshot) => {
             snapshot.forEach((doc) => {
-              const data = doc.data() as Payload;
+              const data = doc.data() as ProfileData;
               dispatch(setProfile(data));
             });
           });
@@ -33,30 +68,6 @@ export const fetchProfileData = createAsyncThunk(
     }
   }
 );
-
-type State = {
-  uid: string;
-  isLogin: boolean;
-  profile: {
-    name: string;
-    location: string;
-    genre: Genre;
-    recommend: string;
-    image: string;
-  };
-};
-
-const initialState: State = {
-  uid: "",
-  isLogin: false,
-  profile: {
-    name: "",
-    location: "",
-    genre: Genre.Empty,
-    recommend: "",
-    image: "",
-  },
-};
 
 export const userSlice = createSlice({
   name: "user",
@@ -74,7 +85,7 @@ export const userSlice = createSlice({
     logout: (state: State) => {
       state.isLogin = false;
     },
-    setProfile: (state: State, action: PayloadAction<Payload>) => {
+    setProfile: (state: State, action: PayloadAction<ProfileData>) => {
       state.profile = action.payload;
     },
     removeProfile: (state: State) => {

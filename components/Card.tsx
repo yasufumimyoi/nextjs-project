@@ -6,17 +6,7 @@ import { addList, removeList } from "../redux/movie";
 import { writeFirestore, removeFirestore } from "../firebase/function";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import { Status } from "../types/index";
-
-export type MovieData = {
-  id: string;
-  title: string;
-  image: string;
-  averageRating: string;
-  episodeLength: number;
-  status: Status;
-  createdAt: string;
-};
+import { MovieData } from "../redux/movie";
 
 const Card = (movie: MovieData) => {
   const { movieList } = useSelector((state: RootState) => state.movie);
