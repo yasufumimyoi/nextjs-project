@@ -1,34 +1,84 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Anime Tracker
 
-## Getting Started
+## 目次
 
-First, run the development server:
+- アプリ概要
+- アプリ機能一覧
+- 使用イメージ
+- 利用ツール・フレームワーク・ライブラリ
+- データ設計
+- Firestore セキュリティルールの設定
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+# アプリ概要
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+アニメの検索・お気に入り登録する事ができるアプリケーションです。  
+アプリ URL: <https://nextjs-project-ochre.vercel.app/>
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+# アプリ仕様
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+## 現在実装済みの機能
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+| 機能名称                |                                                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| サインアップ            | メール・SNS でのサインアップ機能                                                    |
+| ログイン / ログアウト   | メール・SNS・匿名ユーザーでのログイン機能                                           |
+| プロフィール登録 / 編集 | ユーザーネーム、ユーザー画像などを登録 / 編集出来る                                 |
+| アニメ検索機能          | キーワード・ 年度別検索                                                             |
+| アニメ詳細表示          | 外部 API からレーティング・エピソード数・放送状況・YouTube 動画情報を取得し表示する |
+| 無限スクロール機能      | スクロールを行い、外部 API から新たな情報を取得し、画像表示する                     |
 
-## Learn More
+## 使用イメージ
 
-To learn more about Next.js, take a look at the following resources:
+## 利用ツール・フレームワーク・ライブラリ
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Firebase
+  - Firestore
+  - Cloud Functions
+  - Firebase Authentication
+- Vercel （ホスティング先）
+- React + React Hooks
+- Next.js
+- TypeScript
+- Tailwindcss
+- jest
+- React Testing Library
+- React Hook Form
+- Yup
+- React Infinite Scroll Component
+- recharts
+- ESLint
+- Prettier
+- husky
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## データ設計
 
-## Deploy on Vercel
+### フロントエンド（redux toolkit）にて管理するデータ
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- user
+  - uid
+  - isLogin
+  - profile
+    - name
+    - location
+    - comment
+    - image
+    - genre
+    - recommend
+- movie
+  - movies
+  - movieList
+  - keyword
+  - status
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Firestore のデータ設計
+
+users > lists サブコレクション(各ユーザーの動画視聴情報)
+| Column | Type | Details |
+| ------------ | --------------------------- | ----- |
+| id | string | アニメの ID|
+| image | string | アニメサムネイル|
+| title | string |　アニメのタイトル |
+| status | string |　アニメの放送状態（放送中・終了・放送予定） |
+| createdAt | string |制作時期 |
+| episodeLength | string |エピソード数 |
+| averageRating | string |平均レーティング |
