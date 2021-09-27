@@ -6,19 +6,23 @@ import { editFireStore } from "../../firebase/function";
 import { PhotographIcon, DocumentIcon } from "@heroicons/react/outline";
 import { useState } from "react";
 import { firebase } from "../../firebase/config";
+import { RootState } from "../../redux/store";
+import { ProfileData } from "../../redux/user";
 
 const Edit = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { profile, uid } = useSelector((state) => state.user);
+  const { profile, uid } = useSelector((state: RootState) => state.user);
   const { register, handleSubmit } = useForm();
 
   const [imageAsFile, setImageAsFile] = useState("");
   const [imageName, setImageName] = useState("");
 
-  const onChange = async (e) => {
-    const name = e.target.files[0].name;
-    const imageData = e.target.files[0];
+  const onChange = async (e: React.ChangeEvent) => {
+    const target = e.target as HTMLInputElement;
+    const fileList = target.files as FileList;
+    const name: string = fileList[0].name;
+    const imageData: File = fileList[0];
     const storageRef = firebase.storage().ref();
     const fileRef = storageRef.child(imageData.name);
     await fileRef.put(imageData);
@@ -26,7 +30,7 @@ const Edit = () => {
     setImageAsFile(await fileRef.getDownloadURL());
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: ProfileData) => {
     if (imageName === "") {
       data.image = profile.image;
     } else {
@@ -49,7 +53,6 @@ const Edit = () => {
             className="py-2 px-3 rounded-lg border-2 border-purple-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
             type="text"
             placeholder="山田太郎"
-            name="name"
             defaultValue={profile.name}
             {...register("name")}
           />
@@ -62,7 +65,6 @@ const Edit = () => {
             className="py-2 px-3 rounded-lg border-2 border-purple-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
             type="text"
             placeholder="東京都"
-            name="location"
             defaultValue={profile.location}
             {...register("location")}
           />
@@ -71,14 +73,23 @@ const Edit = () => {
           <label className="uppercase md:text-sm text-xs text-gray-500 text-light font-semibold">
             好きなジャンル
           </label>
-          <input
+          <select
             className="py-2 px-3 rounded-lg border-2 border-purple-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-            type="text"
-            placeholder="コメディー"
-            name="genre"
-            defaultValue={profile.genre}
             {...register("genre")}
-          />
+            defaultValue={"default"}
+          >
+            <option value="default" disabled>
+              選択してください
+            </option>
+            <option value="ファンタジー">ファンタジー</option>
+            <option value="アクション">アクション</option>
+            <option value="ラブコメ">ラブコメ</option>
+            <option value="日常">日常</option>
+            <option value="スポーツ">スポーツ</option>
+            <option value="コメディ">コメディ</option>
+            <option value="ホラー">ホラー</option>
+            <option value="青春">青春</option>
+          </select>
         </div>
         <div className="grid grid-cols-1 mt-5 mx-7">
           <label className="uppercase md:text-sm text-xs text-gray-500 text-light font-semibold">
@@ -88,7 +99,6 @@ const Edit = () => {
             className="py-2 px-3 rounded-lg border-2 border-purple-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
             type="text"
             placeholder="ゾンビランドサガ"
-            name="recommend"
             defaultValue={profile.recommend}
             {...register("recommend")}
           />
@@ -108,7 +118,6 @@ const Edit = () => {
               <input
                 type="file"
                 className="hidden"
-                name="image"
                 defaultValue={imageAsFile}
                 {...register("image")}
                 onChange={onChange}

@@ -23,7 +23,7 @@ const Details = ({ results }) => {
   };
 
   const MemorizedCard = useMemo(
-    () => movies.map((movie) => <Card movie={movie} key={movie.id} />),
+    () => movies.map((movie) => <Card {...movie} key={movie.id} />),
     [movies]
   );
 

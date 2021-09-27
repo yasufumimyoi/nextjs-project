@@ -11,10 +11,11 @@ import {
   HeartIcon,
   TrendingUpIcon,
 } from "@heroicons/react/outline";
+import { RootState } from "../../redux/store";
 
 const Profile = () => {
-  const { profile, isLogin } = useSelector((state) => state.user);
-  const { movieList } = useSelector((state) => state.movie);
+  const { profile, isLogin } = useSelector((state: RootState) => state.user);
+  const { movieList } = useSelector((state: RootState) => state.movie);
   const dispatch = useDispatch();
   const router = useRouter();
 

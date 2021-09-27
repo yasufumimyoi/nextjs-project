@@ -6,11 +6,11 @@ const SearchForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
-  const onChange = (e) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const onSubmit = async (e) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm === "") return;
     setSearchTerm("");

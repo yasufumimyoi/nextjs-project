@@ -8,14 +8,15 @@ import {
 import HeaderItem from "./HeaderItem";
 import Link from "next/link";
 import SearchForm from "./SearchForm";
-import { useSelector, useDispatch } from "react-redux";
 import { logout, removeUid, removeProfile } from "../redux/user";
 import { resetList } from "../redux/movie";
 import { useRouter } from "next/router";
 import { firebase } from "../firebase/config";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const Header = () => {
-  const { isLogin } = useSelector((state) => state.user);
+  const { isLogin } = useSelector((state: RootState) => state.user);
   const router = useRouter();
   const dispath = useDispatch();
 
